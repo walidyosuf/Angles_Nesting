@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>????? ??? ?????</title>
+    <!-- ????? ????? Tailwind CSS ?? ???? CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            direction: rtl; /* ????? ???? ?? ?????? ??? ?????? */
+            text-align: right;
+        }
+        /* ??????? ??? ??????? ????? */
+        .card {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .btn-primary {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #059669;
+        }
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+        .report-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .report-header {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        .report-item:last-child {
+            border-bottom: none;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #d1d5db;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .summary-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+    <div id="app" class="max-w-4xl mx-auto card mt-12 mb-12">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">????? ??? ?????</h1>
+        <p class="text-center text-gray-600 mb-8">
+            ?? ?????? ??? Excel ???? ????? ??? ?????? ?????? ???????.
+            <br>
+            ??? ?? ???? ????? ??????? ???????:
+            ?????? ?????: ??????? ?????? ??????: ??? ?????? ?????? ??????: ????? (??)? ?????? ??????: ??????? **?????? ??????: ??? ?????**.
+        </p>
+
+        <!-- ????? ????? ????? -->
+        <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 mb-8 hover:bg-gray-50 transition-colors">
+            <label for="excel-file" class="cursor-pointer">
+                <div class="flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <span class="mt-2 text-gray-600 font-semibold">???? ??? Excel</span>
+                    <span id="file-name" class="text-sm text-gray-500 mt-1">?? ??? ?????? ?? ???</span>
+                </div>
+            </label>
+            <input type="file" id="excel-file" class="hidden" accept=".xlsx, .xls">
+        </div>
+
+        <!-- ????? ????????? -->
+        <div class="flex justify-center items-center space-x-4 space-x-reverse mb-8">
+            <button id="execute-btn" class="btn btn-primary flex items-center" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                </svg>
+                ?????
+            </button>
+            <button id="export-btn" class="btn btn-secondary flex items-center" style="display:none;" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2v-8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" />
+                </svg>
+                ????? ??? Excel
+            </button>
+        </div>
+
+        <!-- ????? ??? ??????? -->
+        <div id="results" class="mt-8">
+            <div id="loading" class="text-center text-gray-600 font-medium hidden">
+                ???? ????????... ???? ????????
+            </div>
+            <div id="message" class="text-center text-red-500 font-medium hidden"></div>
+            <div id="report-container"></div>
+        </div>
+    </div>
+
+    <!-- ????? ????? XLSX ?? ???? CDN ?????? ?????? ????? Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // ????????? ????????
+        const EXCEL_FILE_INPUT = document.getElementById('excel-file');
+        const FILE_NAME_DISPLAY = document.getElementById('file-name');
+        const EXECUTE_BTN = document.getElementById('execute-btn');
+        const EXPORT_BTN = document.getElementById('export-btn');
+        const REPORT_CONTAINER = document.getElementById('report-container');
+        const LOADING_DISPLAY = document.getElementById('loading');
+        const MESSAGE_DISPLAY = document.getElementById('message');
+
+        const RAW_MATERIAL_LENGTH = 12000; // ????? ????????? ?????? (??)
+        const MIN_WASTE_LENGTH = 1500; // ???? ?????? ???? ?????? ??????
+
+        let finalCuttingPlan = {}; // ?????? ??? ????? ????????
+        let loadedFile = null; // ?????? ????? ??????
+
+        // ???? ???? ????? ????????
+        function showMessage(msg, isError = false) {
+            MESSAGE_DISPLAY.textContent = msg;
+            MESSAGE_DISPLAY.className = isError ? 'text-center text-red-500 font-medium' : 'text-center text-green-600 font-medium';
+            MESSAGE_DISPLAY.style.display = 'block';
+        }
+
+        // ???? ????? ???????
+        function hideMessages() {
+            MESSAGE_DISPLAY.style.display = 'none';
+        }
+
+        // ???? ?????? ?????? ??? ?????? ???? ?????
+        function groupItemsBySection(items) {
+            const grouped = {};
+            items.forEach(item => {
+                const section = item[0] ? item[0].toString() : '??? ????';
+                const name = item[1] ? item[1].toString() : '???';
+                const length = item[2] ? parseFloat(item[2]) : 0;
+                const quantity = item[3] ? parseInt(item[3]) : 0;
+                const steelType = item[4] ? item[4].toString() : '??? ????';
+
+                if (isNaN(length) || isNaN(quantity) || length <= 0 || quantity <= 0) {
+                    return; // ????? ???????? ??? ???????
+                }
+
+                const groupKey = `${section}###${steelType}`;
+                if (!grouped[groupKey]) {
+                    grouped[groupKey] = [];
+                }
+
+                for (let i = 0; i < quantity; i++) {
+                    grouped[groupKey].push({
+                        name: name,
+                        length: length,
+                        section: section,
+                        steelType: steelType
+                    });
+                }
+            });
+            return grouped;
+        }
+
+        // ???? ?????? ???????? First Fit Decreasing (FFD) ?????
+        function calculateCuttingPlan(items, rawLength) {
+            // ??? ?????? ???????? ??? ????? ?????? ????? ??????????
+            items.sort((a, b) => b.length - a.length);
+
+            const bars = [];
+            let barCounter = 1;
+
+            items.forEach(item => {
+                let foundFit = false;
+                // ????? ?? ????? ?????? ?? ???? ??? ?????
+                for (let i = 0; i < bars.length; i++) {
+                    if (bars[i].remaining >= item.length) {
+                        // ??? ?????!
+                        bars[i].cuts.push(item);
+                        bars[i].remaining -= item.length;
+                        foundFit = true;
+                        break;
+                    }
+                }
+
+                // ??? ?? ??? ?????? ??? ?????? ???? ?????? ??????
+                if (!foundFit) {
+                    bars.push({
+                        id: barCounter++,
+                        originalLength: rawLength,
+                        remaining: rawLength - item.length,
+                        cuts: [item]
+                    });
+                }
+            });
+
+            return bars;
+        }
+
+        // ???? ?????? ???? ??????? ??? ??????
+        function displayReport(plan) {
+            REPORT_CONTAINER.innerHTML = ''; // ??? ?? ????? ????
+            hideMessages();
+
+            if (Object.keys(plan).length === 0) {
+                showMessage("?? ??? ?????? ??? ?????? ????? ?? ??? Excel.", true);
+                EXPORT_BTN.style.display = 'none';
+                return;
+            }
+            
+            // ???? ?????????? ?????????
+            let totalRawBarsAll = 0;
+            let totalWasteAll = 0;
+            let totalLengthAll = 0;
+            const summaryData = [];
+            const wastesList = [];
+
+            for (const groupKey in plan) {
+                const sectionData = plan[groupKey];
+                const totalRawBars = sectionData.length;
+                let totalWaste = 0;
+                
+                // ???? ????? ?????? ??? ??? ???? ???????
+                sectionData.forEach(bar => {
+                    const remaining = bar.remaining;
+                    totalWaste += remaining;
+                    if (remaining >= MIN_WASTE_LENGTH) {
+                         const { section, steelType } = bar.cuts[0];
+                        wastesList.push({
+                            length: remaining,
+                            section: section,
+                            steelType: steelType
+                        });
+                    }
+                });
+
+                const totalSectionLength = totalRawBars * RAW_MATERIAL_LENGTH;
+                const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
+                const efficiencyPercentage = 100 - wastePercentage;
+                
+                const [section, steelType] = groupKey.split('###');
+
+                summaryData.push({
+                    section: section,
+                    steelType: steelType,
+                    rawBars: totalRawBars,
+                    efficiency: efficiencyPercentage,
+                    waste: wastePercentage
+                });
+
+                totalRawBarsAll += totalRawBars;
+                totalWasteAll += totalWaste;
+                totalLengthAll += totalSectionLength;
+            }
+
+            const totalWastePercentageAll = (totalLengthAll > 0) ? (totalWasteAll / totalLengthAll) * 100 : 0;
+            const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
+
+            // ???? ???? ??????
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'report-section';
+            const summaryHeader = document.createElement('h2');
+            summaryHeader.className = 'report-header';
+            summaryHeader.textContent = '???? ??? ?????';
+            summaryDiv.appendChild(summaryHeader);
+
+            const summaryTable = document.createElement('table');
+            summaryTable.className = 'summary-table';
+            summaryTable.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>??????</th>
+                        <th>??? ?????</th>
+                        <th>??? ??????? ?????????</th>
+                        <th>???? ???????</th>
+                        <th>???? ?????</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${summaryData.map(item => `
+                        <tr>
+                            <td>${item.section}</td>
+                            <td>${item.steelType}</td>
+                            <td>${item.rawBars}</td>
+                            <td>${item.efficiency.toFixed(2)} %</td>
+                            <td>${item.waste.toFixed(2)} %</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+                <tfoot>
+                    <tr class="font-bold">
+                        <td>????????</td>
+                        <td></td>
+                        <td>${totalRawBarsAll}</td>
+                        <td>${totalEfficiencyPercentageAll.toFixed(2)} %</td>
+                        <td>${totalWastePercentageAll.toFixed(2)} %</td>
+                    </tr>
+                </tfoot>
+            `;
+            summaryDiv.appendChild(summaryTable);
+            REPORT_CONTAINER.appendChild(summaryDiv);
+            
+            // ???? ???? ???????
+            const wastesDiv = document.createElement('div');
+            wastesDiv.className = 'report-section';
+            const wastesHeader = document.createElement('h2');
+            wastesHeader.className = 'report-header';
+            wastesHeader.textContent = '???? ???????? (??? = 1500 ??)';
+            wastesDiv.appendChild(wastesHeader);
+
+            if (wastesList.length === 0) {
+                const noWastesMessage = document.createElement('p');
+                noWastesMessage.className = 'text-center text-gray-500';
+                noWastesMessage.textContent = '?? ??? ????? ????? ???? 1500 ?? ?? ????.';
+                wastesDiv.appendChild(noWastesMessage);
+            } else {
+                // ????? ??????? ??? ????? ??????? ???? ?????
+                const groupedWastes = {};
+                wastesList.forEach(waste => {
+                    const key = `${waste.length.toFixed(2)}-${waste.section}-${waste.steelType}`;
+                    if (!groupedWastes[key]) {
+                        groupedWastes[key] = {
+                            length: waste.length,
+                            section: waste.section,
+                            steelType: waste.steelType,
+                            count: 0
+                        };
+                    }
+                    groupedWastes[key].count++;
+                });
+
+                const wastesTable = document.createElement('table');
+                wastesTable.className = 'summary-table';
+                wastesTable.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>??? ?????? (??)</th>
+                            <th>??????</th>
+                            <th>??? ?????</th>
+                            <th>?????</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${Object.values(groupedWastes).sort((a, b) => b.length - a.length).map(waste => `
+                            <tr>
+                                <td>${waste.length.toFixed(2)}</td>
+                                <td>${waste.section}</td>
+                                <td>${waste.steelType}</td>
+                                <td>${waste.count}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+                wastesDiv.appendChild(wastesTable);
+            }
+            REPORT_CONTAINER.appendChild(wastesDiv);
+
+            // ???? ??????? ?????? ??? ????
+            for (const groupKey in plan) {
+                const sectionData = plan[groupKey];
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'report-section';
+                const [section, steelType] = groupKey.split('###');
+
+                const header = document.createElement('h2');
+                header.className = 'report-header';
+                header.textContent = `??? ????? ??????: ${section} ???? ?????: ${steelType}`;
+                sectionDiv.appendChild(header);
+
+                let totalRawBars = sectionData.length;
+                let totalWaste = 0;
+
+                // ????? ??????? ????? ?????????
+                const groupedBars = {};
+                sectionData.forEach(bar => {
+                    const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
+                    const key = `${cutsPattern}|${bar.remaining.toFixed(2)}`;
+
+                    if (!groupedBars[key]) {
+                        groupedBars[key] = { ...bar, count: 0 };
+                    }
+                    groupedBars[key].count++;
+                });
+
+                let groupCounter = 1;
+                for (const key in groupedBars) {
+                    const groupedBar = groupedBars[key];
+                    const barDiv = document.createElement('div');
+                    barDiv.className = 'bg-gray-50 rounded-lg p-4 mb-4';
+
+                    const barHeader = document.createElement('div');
+                    barHeader.className = 'flex justify-between items-center font-semibold text-gray-800 border-b pb-2 mb-2';
+                    barHeader.innerHTML = `<span>????? ${groupCounter++} (?????: ${groupedBar.count})</span>
+                                           <span>?????: ${groupedBar.remaining.toFixed(2)} ??</span>`;
+                    barDiv.appendChild(barHeader);
+
+                    const cutsList = document.createElement('ul');
+                    // ????? ????? ???????
+                    const groupedCuts = {};
+                    groupedBar.cuts.forEach(cut => {
+                        const cutKey = `${cut.name}-${cut.length}`;
+                        if (!groupedCuts[cutKey]) {
+                            groupedCuts[cutKey] = { ...cut, count: 0 };
+                        }
+                        groupedCuts[cutKey].count++;
+                    });
+
+                    // ??? ????? ???????
+                    for (const cutKey in groupedCuts) {
+                        const cut = groupedCuts[cutKey];
+                        const cutItem = document.createElement('li');
+                        cutItem.className = 'flex justify-between items-center text-gray-700 text-sm py-1';
+                        cutItem.innerHTML = `<span>• ${cut.name} (?????: ${cut.count})</span><span>${cut.length} ??</span>`;
+                        cutsList.appendChild(cutItem);
+                    }
+                    barDiv.appendChild(cutsList);
+
+                    totalWaste += groupedBar.remaining * groupedBar.count;
+                    sectionDiv.appendChild(barDiv);
+                }
+
+                const totalSectionLength = totalRawBars * RAW_MATERIAL_LENGTH;
+                const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
+                
+                const summary = document.createElement('div');
+                summary.className = 'mt-4 pt-4 border-t-2 border-gray-200 text-sm font-semibold text-gray-700';
+                summary.innerHTML = `
+                    <p>?????? ??? ??????? ????? ?????????: ${totalRawBars}</p>
+                    <p>?????? ?????: ${totalWaste.toFixed(2)} ??</p>
+                    <p>???? ?????: ${wastePercentage.toFixed(2)} %</p>
+                `;
+                sectionDiv.appendChild(summary);
+
+                REPORT_CONTAINER.appendChild(sectionDiv);
+            }
+
+            EXPORT_BTN.style.display = 'block';
+        }
+
+        // ???? ?????? ??????? ??? ??? Excel
+        function exportToExcel() {
+            if (Object.keys(finalCuttingPlan).length === 0) {
+                showMessage("?? ???? ??? ??? ????????.", true);
+                return;
+            }
+
+            const wb = XLSX.utils.book_new();
+
+            // ???? ???? ???
+            const summarySheetData = [
+                ['???? ??? ?????'],
+                [],
+                ['??????', '??? ?????', '??? ??????? ?????????', '???? ???????', '???? ?????']
+            ];
+            
+            let totalRawBarsAll = 0;
+            let totalWasteAll = 0;
+            let totalLengthAll = 0;
+            const wastesList = [];
+
+            for (const groupKey in finalCuttingPlan) {
+                const sectionData = finalCuttingPlan[groupKey];
+                const totalRawBars = sectionData.length;
+                let totalWaste = 0;
+                
+                sectionData.forEach(bar => {
+                    const remaining = bar.remaining;
+                    totalWaste += remaining;
+                    if (remaining >= MIN_WASTE_LENGTH) {
+                        const { section, steelType } = bar.cuts[0];
+                        wastesList.push({
+                            length: remaining,
+                            section: section,
+                            steelType: steelType
+                        });
+                    }
+                });
+                
+                const [section, steelType] = groupKey.split('###');
+
+                const totalSectionLength = totalRawBars * RAW_MATERIAL_LENGTH;
+                const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
+                const efficiencyPercentage = 100 - wastePercentage;
+                
+                summarySheetData.push([
+                    section,
+                    steelType,
+                    totalRawBars,
+                    efficiencyPercentage.toFixed(2) + ' %',
+                    wastePercentage.toFixed(2) + ' %'
+                ]);
+
+                totalRawBarsAll += totalRawBars;
+                totalWasteAll += totalWaste;
+                totalLengthAll += totalSectionLength;
+            }
+            
+            const totalWastePercentageAll = (totalLengthAll > 0) ? (totalWasteAll / totalLengthAll) * 100 : 0;
+            const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
+            
+            summarySheetData.push([]);
+            summarySheetData.push(['????????', '', totalRawBarsAll, totalEfficiencyPercentageAll.toFixed(2) + ' %', totalWastePercentageAll.toFixed(2) + ' %']);
+            
+            const summaryWs = XLSX.utils.aoa_to_sheet(summarySheetData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, '???? ???');
+
+            // ???? ???? ????????
+            const wastesWsData = [
+                ['???? ???????? (??? = 1500 ??)'],
+                [],
+                ['??? ?????? (??)', '??????', '??? ?????', '?????']
+            ];
+            
+            const groupedWastes = {};
+            wastesList.forEach(waste => {
+                const key = `${waste.length.toFixed(2)}-${waste.section}-${waste.steelType}`;
+                if (!groupedWastes[key]) {
+                    groupedWastes[key] = {
+                        length: waste.length,
+                        section: waste.section,
+                        steelType: waste.steelType,
+                        count: 0
+                    };
+                }
+                groupedWastes[key].count++;
+            });
+
+            Object.values(groupedWastes).sort((a,b) => b.length - a.length).forEach(waste => {
+                wastesWsData.push([waste.length.toFixed(2), waste.section, waste.steelType, waste.count]);
+            });
+
+            const wastesWs = XLSX.utils.aoa_to_sheet(wastesWsData);
+            XLSX.utils.book_append_sheet(wb, wastesWs, '???? ????????');
+
+            // ????? ?????? ??? ????
+            for (const groupKey in finalCuttingPlan) {
+                // ????? ??????? ????? ????????? ???????
+                const groupedBars = {};
+                finalCuttingPlan[groupKey].forEach(bar => {
+                    const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
+                    const key = `${cutsPattern}|${bar.remaining.toFixed(2)}`;
+                    if (!groupedBars[key]) {
+                        groupedBars[key] = { ...bar, count: 0 };
+                    }
+                    groupedBars[key].count++;
+                });
+                
+                const [section, steelType] = groupKey.split('###');
+
+                const wsData = [
+                    [`??? ????? ??????: ${section} ???? ?????: ${steelType}`],
+                    [],
+                    ['????? ?????', '??? ???????', '??? ??????? ????? (??)', '?????', '??? ?????? (??)', '??????', '????? ??????? (??)']
+                ];
+
+                let groupCounter = 1;
+                for (const key in groupedBars) {
+                    const groupedBar = groupedBars[key];
+                    const cutItems = {};
+                    groupedBar.cuts.forEach(cut => {
+                        const cutKey = `${cut.name}-${cut.length}`;
+                        if (!cutItems[cutKey]) {
+                            cutItems[cutKey] = { ...cut, count: 0 };
+                        }
+                        cutItems[cutKey].count++;
+                    });
+                    
+                    let firstRow = true;
+                    for (const cutKey in cutItems) {
+                        const cut = cutItems[cutKey];
+                        wsData.push([
+                            firstRow ? `????? ${groupCounter}` : '',
+                            firstRow ? groupedBar.count : '',
+                            firstRow ? groupedBar.originalLength : '',
+                            cut.name,
+                            cut.length,
+                            cut.count,
+                            firstRow ? groupedBar.remaining.toFixed(2) : ''
+                        ]);
+                        firstRow = false;
+                    }
+                    groupCounter++;
+                    wsData.push([]); // ????? ?? ???? ????? ??? ???????
+                }
+                
+                // ?????? ?? ?? ??? ?????? ?? ????? ??? ????? ??? ?????
+                const safeSheetName = `??? ${section}-${steelType}`.replace(/[\\/:?*[\]]/g, '');
+                const ws = XLSX.utils.aoa_to_sheet(wsData);
+                XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
+            }
+            
+            XLSX.writeFile(wb, "???_?????.xlsx");
+            showMessage("?? ????? ??? Excel ?????!");
+        }
+        
+        // ???? ?????? ?????
+        function processFile() {
+            if (!loadedFile) {
+                showMessage("???? ?????? ??? Excel ?????.", true);
+                return;
+            }
+
+            REPORT_CONTAINER.innerHTML = '';
+            EXPORT_BTN.style.display = 'none';
+            hideMessages();
+            LOADING_DISPLAY.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const items = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                // ?????? ?? ?? ???????? ????? ??? ??????? ?????? ????????
+                if (items.length < 2 || items[0].length < 5) {
+                    LOADING_DISPLAY.style.display = 'none';
+                    showMessage("???? ??? Excel ??? ?????. ???? ?????? ?? ???? ??????? ????????.", true);
+                    return;
+                }
+
+                // ??? ???? ????? (???? ???????)
+                items.shift();
+
+                const groupedItems = groupItemsBySection(items);
+                finalCuttingPlan = {};
+
+                for (const groupKey in groupedItems) {
+                    const plan = calculateCuttingPlan(groupedItems[groupKey], RAW_MATERIAL_LENGTH);
+                    finalCuttingPlan[groupKey] = plan;
+                }
+
+                LOADING_DISPLAY.style.display = 'none';
+                displayReport(finalCuttingPlan);
+            };
+
+            reader.readAsArrayBuffer(loadedFile);
+        }
+
+        // ??? ??? ?????? ???
+        EXCEL_FILE_INPUT.addEventListener('change', (event) => {
+            loadedFile = event.target.files[0];
+            if (loadedFile) {
+                FILE_NAME_DISPLAY.textContent = loadedFile.name;
+                EXECUTE_BTN.disabled = false;
+            } else {
+                FILE_NAME_DISPLAY.textContent = "?? ??? ?????? ?? ???";
+                EXECUTE_BTN.disabled = true;
+            }
+            REPORT_CONTAINER.innerHTML = '';
+            EXPORT_BTN.style.display = 'none';
+            hideMessages();
+        });
+
+        // ??? ??? ????? ??? ?? ???????
+        EXECUTE_BTN.addEventListener('click', processFile);
+
+        // ??? ??? ????? ??? ?? ???????
+        EXPORT_BTN.addEventListener('click', exportToExcel);
+
+    </script>
+</body>
+</html>
