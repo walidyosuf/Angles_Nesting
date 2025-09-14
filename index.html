@@ -1,23 +1,28 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق خطة القطع</title>
-    <!-- تضمين مكتبة Tailwind CSS من خلال CDN -->
+    <title id="title">Cutting Plan Application</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            direction: rtl; /* اتجاه النص من اليمين إلى اليسار */
+            background-color: #2c3e50; /* Dark blue-gray, industrial feel */
+            color: #ecf0f1; /* Light gray text */
+            direction: ltr; /* Default LTR direction */
+            text-align: left;
+        }
+        .rtl {
+            direction: rtl;
             text-align: right;
         }
-        /* تعديلات على التصميم العام */
+        /* General styling for cards and buttons */
         .card {
-            background-color: #ffffff;
+            background-color: #34495e; /* Slightly lighter than body background */
             border-radius: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             padding: 2rem;
         }
         .btn {
@@ -27,40 +32,32 @@
             transition: background-color 0.3s, transform 0.1s;
         }
         .btn-primary {
-            background-color: #10b981;
+            background-color: #1abc9c; /* Bright teal, tech-inspired */
             color: #ffffff;
         }
         .btn-primary:hover {
-            background-color: #059669;
+            background-color: #16a085;
         }
         .btn-secondary {
-            background-color: #f3f4f6;
-            color: #1f2937;
-            border: 1px solid #d1d5db;
+            background-color: #bdc3c7; /* Gray for contrast */
+            color: #2c3e50;
+            border: 1px solid #95a5a6;
         }
         .btn-secondary:hover {
-            background-color: #e5e7eb;
+            background-color: #95a5a6;
         }
         .report-section {
-            border: 1px solid #e5e7eb;
+            border: 1px solid #7f8c8d;
             border-radius: 0.5rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
+            background-color: #34495e;
         }
         .report-header {
             font-size: 1.25rem;
             font-weight: 700;
-            color: #1f2937;
+            color: #ecf0f1;
             margin-bottom: 1rem;
-        }
-        .report-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px dashed #e5e7eb;
-        }
-        .report-item:last-child {
-            border-bottom: none;
         }
         .summary-table {
             width: 100%;
@@ -68,12 +65,12 @@
             margin-bottom: 2rem;
         }
         .summary-table th, .summary-table td {
-            border: 1px solid #d1d5db;
+            border: 1px solid #7f8c8d;
             padding: 0.75rem;
             text-align: center;
         }
         .summary-table th {
-            background-color: #f3f4f6;
+            background-color: #4a627a; /* Darker header */
             font-weight: 600;
         }
     </style>
@@ -81,73 +78,78 @@
 <body class="bg-gray-100 p-4 sm:p-8">
 
     <div id="app" class="max-w-4xl mx-auto card mt-12 mb-12">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">تطبيق خطة القطع</h1>
-        <p class="text-center text-gray-600 mb-8">
-            قم بتحميل ملف Excel الذي يحتوي على البنود المراد تقطيعها، ثم ملف أكواد الخامة.
+        <!-- Language Toggle Button -->
+        <div class="flex justify-end mb-4">
+            <button id="lang-toggle" class="btn btn-secondary text-sm">العربية</button>
+        </div>
+
+        <h1 id="app-title" class="text-3xl font-bold text-center text-white mb-4">Cutting Plan Application</h1>
+        <p id="app-description" class="text-center text-gray-300 mb-8">
+            Upload the Excel file containing the items to be cut, then the raw material codes file.
         </p>
 
-        <!-- منطقة إدخال الملفات -->
+        <!-- File Input Area -->
         <div class="space-y-4">
-            <!-- ملف البنود -->
-            <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 hover:bg-gray-50 transition-colors">
+            <!-- Items File -->
+            <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-xl p-6 hover:bg-gray-700 transition-colors">
                 <label for="items-file" class="cursor-pointer">
                     <div class="flex flex-col items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h10a2 2 0 012 2v1m-4 5h-1a2 2 0 00-2 2v-1h-1a2 2 0 00-2 2v-1z" />
                         </svg>
-                        <span class="mt-2 text-gray-600 font-semibold">اختر ملف البنود</span>
-                        <span id="items-file-name" class="text-sm text-gray-500 mt-1">لم يتم اختيار أي ملف</span>
+                        <span id="items-label" class="mt-2 text-gray-300 font-semibold">Choose Items File</span>
+                        <span id="items-file-name" class="text-sm text-gray-400 mt-1">No file chosen</span>
                     </div>
                 </label>
                 <input type="file" id="items-file" class="hidden" accept=".xlsx, .xls">
             </div>
 
-            <!-- ملف أكواد الخامة -->
-            <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-6 hover:bg-gray-50 transition-colors">
+            <!-- Codes File -->
+            <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-xl p-6 hover:bg-gray-700 transition-colors">
                 <label for="codes-file" class="cursor-pointer">
                     <div class="flex flex-col items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
-                        <span class="mt-2 text-gray-600 font-semibold">اختر ملف أكواد الخامة</span>
-                        <span id="codes-file-name" class="text-sm text-gray-500 mt-1">لم يتم اختيار أي ملف</span>
+                        <span id="codes-label" class="mt-2 text-gray-300 font-semibold">Choose Raw Material Codes File</span>
+                        <span id="codes-file-name" class="text-sm text-gray-400 mt-1">No file chosen</span>
                     </div>
                 </label>
                 <input type="file" id="codes-file" class="hidden" accept=".xlsx, .xls">
             </div>
         </div>
         
-        <!-- أزرار الإجراءات -->
-        <div class="flex justify-center items-center space-x-4 space-x-reverse my-8">
+        <!-- Action Buttons -->
+        <div class="flex justify-center items-center space-x-4 my-8">
             <button id="execute-btn" class="btn btn-primary flex items-center" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                 </svg>
-                تنفيذ
+                <span id="execute-btn-text">Execute</span>
             </button>
             <button id="export-btn" class="btn btn-secondary flex items-center" style="display:none;" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2v-8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" />
                 </svg>
-                تصدير إلى Excel
+                <span id="export-btn-text">Export to Excel</span>
             </button>
         </div>
 
-        <!-- منطقة عرض النتائج -->
+        <!-- Results Area -->
         <div id="results" class="mt-8">
-            <div id="loading" class="text-center text-gray-600 font-medium hidden">
-                جاري المعالجة... يرجى الانتظار
+            <div id="loading" class="text-center text-gray-400 font-medium hidden">
+                Processing... Please wait
             </div>
-            <div id="message" class="text-center text-red-500 font-medium hidden"></div>
+            <div id="message" class="text-center text-red-400 font-medium hidden"></div>
             <div id="report-container"></div>
         </div>
     </div>
 
-    <!-- تضمين مكتبة XLSX من خلال CDN لقراءة وكتابة ملفات Excel -->
+    <!-- XLSX library for Excel file reading/writing -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        // المتغيرات الرئيسية
+        // Main variables
         const ITEMS_FILE_INPUT = document.getElementById('items-file');
         const CODES_FILE_INPUT = document.getElementById('codes-file');
         const ITEMS_FILE_NAME_DISPLAY = document.getElementById('items-file-name');
@@ -157,28 +159,154 @@
         const REPORT_CONTAINER = document.getElementById('report-container');
         const LOADING_DISPLAY = document.getElementById('loading');
         const MESSAGE_DISPLAY = document.getElementById('message');
+        const LANG_TOGGLE = document.getElementById('lang-toggle');
+        const BODY = document.querySelector('body');
 
-        const RAW_MATERIAL_LENGTH = 12000; // الطول الافتراضي للخامة (مم)
-        const MIN_WASTE_LENGTH = 1500; // الحد الأدنى لطول الفضلة لعرضها
+        const RAW_MATERIAL_LENGTH = 12000; // Default raw material length (mm)
+        const MIN_WASTE_LENGTH = 1500; // Minimum waste length to display
 
-        let finalCuttingPlan = {}; // لتخزين خطة القطع النهائية
-        let rawMaterialCodes = {}; // لتخزين أكواد الخامة
+        let finalCuttingPlan = {}; // To store the final cutting plan
+        let rawMaterialCodes = {}; // To store raw material codes
         let loadedItemsFile = null;
         let loadedCodesFile = null;
+        let currentLang = 'en';
 
-        // دالة لعرض رسالة للمستخدم
+        const translations = {
+            ar: {
+                title: "تطبيق خطة القطع",
+                description: "قم بتحميل ملف Excel الذي يحتوي على البنود المراد تقطيعها، ثم ملف أكواد الخامة.",
+                itemsLabel: "اختر ملف البنود",
+                codesLabel: "اختر ملف أكواد الخامة",
+                noFileChosen: "لم يتم اختيار أي ملف",
+                execute: "تنفيذ",
+                export: "تصدير إلى Excel",
+                processing: "جاري المعالجة... يرجى الانتظار",
+                invalidItemsFormat: "صيغة ملف البنود غير صحيحة. يرجى التأكد من وجود 5 أعمدة.",
+                summaryTitle: "ملخص خطة القطع",
+                summaryTableHeaders: ["القطاع", "نوع الصلب", "كود الخامة", "عدد الزوايا المستخدمة", "نسبة الكفاءة", "نسبة الهدر"],
+                total: "الإجمالي",
+                wasteReportTitle: "بيان بالفضلات (طول ≥ 1500 مم)",
+                noWaste: "لم يتم إنتاج فضلات بطول 1500 مم أو أكثر.",
+                wasteTableHeaders: ["طول الفضلة (مم)", "القطاع", "نوع الصلب", "العدد"],
+                planTitle: "خطة القطع للقطاع:",
+                planTitleSteel: "ونوع الصلب:",
+                pattern: "نموذج",
+                count: "العدد",
+                waste: "الهدر",
+                totalBars: "إجمالي عدد الزوايا الخام المستخدمة: ",
+                totalWaste: "إجمالي الهدر: ",
+                wastePercentage: "نسبة الهدر: ",
+                exportSuccess: "تم تصدير ملف Excel بنجاح!",
+                noPlanToExport: "لا توجد خطة قطع لتصديرها.",
+                failedToReadCodes: "فشل في قراءة ملف أكواد الخامة. يرجى التأكد من الصيغة.",
+                failedToReadItems: "فشل في قراءة ملف البنود.",
+                chooseBothFiles: "يرجى اختيار كلا الملفين أولاً.",
+                noValidData: "لم يتم العثور على بيانات صالحة في ملف Excel.",
+                unspecified: "غير محدد",
+                notAvailable: "غير متوفر",
+                item: "بند",
+                excelSummarySheet: "ملخص عام",
+                excelWasteSheet: "بيان بالفضلات",
+                excelPlanSheet: "خطة"
+            },
+            en: {
+                title: "Cutting Plan Application",
+                description: "Upload an Excel file containing the items to be cut, then the raw material codes file.",
+                itemsLabel: "Choose Items File",
+                codesLabel: "Choose Raw Material Codes File",
+                noFileChosen: "No file chosen",
+                execute: "Execute",
+                export: "Export to Excel",
+                processing: "Processing... Please wait",
+                invalidItemsFormat: "Items file format is incorrect. Please ensure there are 5 columns.",
+                summaryTitle: "Cutting Plan Summary",
+                summaryTableHeaders: ["Section", "Steel Type", "Raw Material Code", "Number of Raw Bars Used", "Efficiency Percentage", "Waste Percentage"],
+                total: "Total",
+                wasteReportTitle: "Waste Report (length ≥ 1500 mm)",
+                noWaste: "No waste pieces of 1500 mm or more were produced.",
+                wasteTableHeaders: ["Waste Length (mm)", "Section", "Steel Type", "Count"],
+                planTitle: "Cutting plan for section:",
+                planTitleSteel: "and steel type:",
+                pattern: "Pattern",
+                count: "Count",
+                waste: "Waste",
+                totalBars: "Total number of raw bars used: ",
+                totalWaste: "Total Waste: ",
+                wastePercentage: "Waste Percentage: ",
+                exportSuccess: "Excel file exported successfully!",
+                noPlanToExport: "No cutting plan to export.",
+                failedToReadCodes: "Failed to read the raw material codes file. Please check the format.",
+                failedToReadItems: "Failed to read the items file.",
+                chooseBothFiles: "Please choose both files first.",
+                noValidData: "No valid data found in the Excel file.",
+                unspecified: "Unspecified",
+                notAvailable: "Not available",
+                item: "Item",
+                excelSummarySheet: "Summary",
+                excelWasteSheet: "Waste Report",
+                excelPlanSheet: "Plan"
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+
+            // Update UI elements
+            document.getElementById('title').textContent = t.title;
+            document.getElementById('app-title').textContent = t.title;
+            document.getElementById('app-description').textContent = t.description;
+            document.getElementById('items-label').textContent = t.itemsLabel;
+            document.getElementById('codes-label').textContent = t.codesLabel;
+            
+            // Re-label file display names
+            if (!loadedItemsFile) {
+                document.getElementById('items-file-name').textContent = t.noFileChosen;
+            }
+            if (!loadedCodesFile) {
+                document.getElementById('codes-file-name').textContent = t.noFileChosen;
+            }
+            
+            document.getElementById('execute-btn-text').textContent = t.execute;
+            document.getElementById('export-btn-text').textContent = t.export;
+            document.getElementById('loading').textContent = t.processing;
+            
+            // Update button text for language toggle
+            LANG_TOGGLE.textContent = lang === 'ar' ? 'English' : 'العربية';
+            BODY.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            BODY.style.textAlign = lang === 'ar' ? 'right' : 'left';
+            
+            // Re-render report if it exists
+            if (Object.keys(finalCuttingPlan).length > 0) {
+                displayReport(finalCuttingPlan);
+            }
+            hideMessages();
+        }
+
+        // Toggle language on button click
+        LANG_TOGGLE.addEventListener('click', () => {
+            const newLang = currentLang === 'ar' ? 'en' : 'ar';
+            setLanguage(newLang);
+        });
+
+        // Set initial language
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage('en');
+        });
+        
+        // Function to show a message to the user
         function showMessage(msg, isError = false) {
             MESSAGE_DISPLAY.textContent = msg;
-            MESSAGE_DISPLAY.className = isError ? 'text-center text-red-500 font-medium' : 'text-center text-green-600 font-medium';
+            MESSAGE_DISPLAY.className = isError ? 'text-center text-red-400 font-medium' : 'text-center text-green-400 font-medium';
             MESSAGE_DISPLAY.style.display = 'block';
         }
 
-        // دالة إخفاء الرسائل
+        // Function to hide messages
         function hideMessages() {
             MESSAGE_DISPLAY.style.display = 'none';
         }
         
-        // دالة للتحقق من إمكانية التنفيذ
+        // Function to check if execution is possible
         function checkReadiness() {
             if (loadedItemsFile && loadedCodesFile) {
                 EXECUTE_BTN.disabled = false;
@@ -187,7 +315,7 @@
             }
         }
 
-        // دالة لتحميل ملف أكواد الخامة
+        // Function to load raw material codes file
         function loadCodesFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -212,26 +340,26 @@
                         rawMaterialCodes = codesMap;
                         resolve();
                     } catch (error) {
-                        reject("فشل في قراءة ملف أكواد الخامة. يرجى التأكد من الصيغة.");
+                        reject(translations[currentLang].failedToReadCodes);
                     }
                 };
-                reader.onerror = (error) => reject("فشل في قراءة الملف.");
+                reader.onerror = (error) => reject(translations[currentLang].failedToReadCodes);
                 reader.readAsArrayBuffer(file);
             });
         }
 
-        // دالة لتجميع البنود حسب القطاع ونوع الصلب
+        // Function to group items by section and steel type
         function groupItemsBySection(items) {
             const grouped = {};
             items.forEach(item => {
-                const section = item[0] ? item[0].toString() : 'غير محدد';
-                const name = item[1] ? item[1].toString() : 'بند';
+                const section = item[0] ? item[0].toString() : translations[currentLang].unspecified;
+                const name = item[1] ? item[1].toString() : translations[currentLang].item;
                 const length = item[2] ? parseFloat(item[2]) : 0;
                 const quantity = item[3] ? parseInt(item[3]) : 0;
-                const steelType = item[4] ? item[4].toString() : 'غير محدد';
+                const steelType = item[4] ? item[4].toString() : translations[currentLang].unspecified;
 
                 if (isNaN(length) || isNaN(quantity) || length <= 0 || quantity <= 0) {
-                    return; // تجاهل البيانات غير الصالحة
+                    return; // Ignore invalid data
                 }
 
                 const groupKey = `${section}###${steelType}`;
@@ -251,9 +379,9 @@
             return grouped;
         }
 
-        // دالة لتطبيق خوارزمية First Fit Decreasing (FFD) للقطع
+        // Function to apply First Fit Decreasing (FFD) algorithm for cutting
         function calculateCuttingPlan(items, rawLength) {
-            // فرز البنود تنازليًا حسب الطول لتحسين كفاءة الخوارزمية
+            // Sort items in descending order by length for better efficiency
             items.sort((a, b) => b.length - a.length);
 
             const bars = [];
@@ -261,10 +389,10 @@
 
             items.forEach(item => {
                 let foundFit = false;
-                // البحث عن مساحة مناسبة في قضيب خام موجود
+                // Find a suitable space in an existing raw bar
                 for (let i = 0; i < bars.length; i++) {
                     if (bars[i].remaining >= item.length) {
-                        // وجد مساحة!
+                        // Found a fit!
                         bars[i].cuts.push(item);
                         bars[i].remaining -= item.length;
                         foundFit = true;
@@ -272,7 +400,7 @@
                     }
                 }
 
-                // إذا لم يتم العثور على مساحة، ابدأ قضيبًا جديدًا
+                // If no fit found, start a new raw bar
                 if (!foundFit) {
                     bars.push({
                         id: barCounter++,
@@ -286,18 +414,19 @@
             return bars;
         }
 
-        // دالة لتوليد وعرض التقرير على الشاشة
+        // Function to generate and display the report on the screen
         function displayReport(plan) {
-            REPORT_CONTAINER.innerHTML = ''; // مسح أي محتوى سابق
+            const t = translations[currentLang];
+            REPORT_CONTAINER.innerHTML = ''; // Clear previous content
             hideMessages();
 
             if (Object.keys(plan).length === 0) {
-                showMessage("لم يتم العثور على بيانات صالحة في ملف Excel.", true);
+                showMessage(t.noValidData, true);
                 EXPORT_BTN.style.display = 'none';
                 return;
             }
             
-            // حساب الإحصائيات الإجمالية
+            // Calculate overall statistics
             let totalRawBarsAll = 0;
             let totalWasteAll = 0;
             let totalLengthAll = 0;
@@ -309,7 +438,7 @@
                 const totalRawBars = sectionData.length;
                 let totalWaste = 0;
                 
-                // حساب الهدر والقطع لكل قسم وجمع الفضلات
+                // Calculate waste and cuts for each section and collect waste pieces
                 sectionData.forEach(bar => {
                     const remaining = bar.remaining;
                     totalWaste += remaining;
@@ -328,7 +457,7 @@
                 const efficiencyPercentage = 100 - wastePercentage;
                 
                 const [section, steelType] = groupKey.split('###');
-                const rawCode = rawMaterialCodes[groupKey] || 'غير متوفر';
+                const rawCode = rawMaterialCodes[groupKey] || t.notAvailable;
 
                 summaryData.push({
                     section: section,
@@ -347,12 +476,12 @@
             const totalWastePercentageAll = (totalLengthAll > 0) ? (totalWasteAll / totalLengthAll) * 100 : 0;
             const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
 
-            // بناء جدول الملخص
+            // Build the summary table
             const summaryDiv = document.createElement('div');
             summaryDiv.className = 'report-section';
             const summaryHeader = document.createElement('h2');
             summaryHeader.className = 'report-header';
-            summaryHeader.textContent = 'ملخص خطة القطع';
+            summaryHeader.textContent = t.summaryTitle;
             summaryDiv.appendChild(summaryHeader);
 
             const summaryTable = document.createElement('table');
@@ -360,12 +489,7 @@
             summaryTable.innerHTML = `
                 <thead>
                     <tr>
-                        <th>القطاع</th>
-                        <th>نوع الصلب</th>
-                        <th>كود الخامة</th>
-                        <th>عدد الزوايا المستخدمة</th>
-                        <th>نسبة الكفاءة</th>
-                        <th>نسبة الهدر</th>
+                        ${t.summaryTableHeaders.map(h => `<th>${h}</th>`).join('')}
                     </tr>
                 </thead>
                 <tbody>
@@ -382,7 +506,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="font-bold">
-                        <td>الإجمالي</td>
+                        <td>${t.total}</td>
                         <td></td>
                         <td></td>
                         <td>${totalRawBarsAll}</td>
@@ -394,21 +518,21 @@
             summaryDiv.appendChild(summaryTable);
             REPORT_CONTAINER.appendChild(summaryDiv);
             
-            // بناء بيان الفضلات
+            // Build the waste report
             const wastesDiv = document.createElement('div');
             wastesDiv.className = 'report-section';
             const wastesHeader = document.createElement('h2');
             wastesHeader.className = 'report-header';
-            wastesHeader.textContent = 'بيان بالفضلات (طول ≥ 1500 مم)';
+            wastesHeader.textContent = t.wasteReportTitle;
             wastesDiv.appendChild(wastesHeader);
 
             if (wastesList.length === 0) {
                 const noWastesMessage = document.createElement('p');
                 noWastesMessage.className = 'text-center text-gray-500';
-                noWastesMessage.textContent = 'لم يتم إنتاج فضلات بطول 1500 مم أو أكثر.';
+                noWastesMessage.textContent = t.noWaste;
                 wastesDiv.appendChild(noWastesMessage);
             } else {
-                // تجميع الفضلات حسب الطول والقطاع ونوع الصلب
+                // Group waste pieces by length, section, and steel type
                 const groupedWastes = {};
                 wastesList.forEach(waste => {
                     const key = `${waste.length.toFixed(2)}-${waste.section}-${waste.steelType}`;
@@ -428,10 +552,7 @@
                 wastesTable.innerHTML = `
                     <thead>
                         <tr>
-                            <th>طول الفضلة (مم)</th>
-                            <th>القطاع</th>
-                            <th>نوع الصلب</th>
-                            <th>العدد</th>
+                            ${t.wasteTableHeaders.map(h => `<th>${h}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
@@ -449,9 +570,9 @@
             }
             REPORT_CONTAINER.appendChild(wastesDiv);
 
-            // بناء التقرير المفصل لكل قطاع
+            // Build detailed report for each section
             for (const groupKey in plan) {
-                // تجميع الزوايا الخام المتشابهة
+                // Group similar raw bars
                 const groupedBars = {};
                 plan[groupKey].forEach(bar => {
                     const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
@@ -468,7 +589,7 @@
                 sectionDiv.className = 'report-section';
                 const header = document.createElement('h2');
                 header.className = 'report-header';
-                header.textContent = `خطة القطع للقطاع: ${section} ونوع الصلب: ${steelType}`;
+                header.textContent = `${t.planTitle} ${section} ${t.planTitleSteel} ${steelType}`;
                 sectionDiv.appendChild(header);
 
                 let totalRawBars = plan[groupKey].length;
@@ -478,16 +599,16 @@
                 for (const key in groupedBars) {
                     const groupedBar = groupedBars[key];
                     const barDiv = document.createElement('div');
-                    barDiv.className = 'bg-gray-50 rounded-lg p-4 mb-4';
+                    barDiv.className = 'bg-gray-800 rounded-lg p-4 mb-4';
 
                     const barHeader = document.createElement('div');
-                    barHeader.className = 'flex justify-between items-center font-semibold text-gray-800 border-b pb-2 mb-2';
-                    barHeader.innerHTML = `<span>نموذج ${groupCounter++} (العدد: ${groupedBar.count})</span>
-                                           <span>الهدر: ${groupedBar.remaining.toFixed(2)} مم</span>`;
+                    barHeader.className = 'flex justify-between items-center font-semibold text-gray-200 border-b-2 border-gray-600 pb-2 mb-2';
+                    barHeader.innerHTML = `<span>${t.pattern} ${groupCounter++} (${t.count}: ${groupedBar.count})</span>
+                                           <span>${t.waste}: ${groupedBar.remaining.toFixed(2)} mm</span>`;
                     barDiv.appendChild(barHeader);
 
                     const cutsList = document.createElement('ul');
-                    // تجميع القطع المكررة
+                    // Group repeated cuts
                     const groupedCuts = {};
                     groupedBar.cuts.forEach(cut => {
                         const cutKey = `${cut.name}-${cut.length}`;
@@ -497,12 +618,12 @@
                         groupedCuts[cutKey].count++;
                     });
 
-                    // عرض القطع المجمعة
+                    // Display grouped cuts
                     for (const cutKey in groupedCuts) {
                         const cut = groupedCuts[cutKey];
                         const cutItem = document.createElement('li');
-                        cutItem.className = 'flex justify-between items-center text-gray-700 text-sm py-1';
-                        cutItem.innerHTML = `<span>• ${cut.name} (العدد: ${cut.count})</span><span>${cut.length} مم</span>`;
+                        cutItem.className = 'flex justify-between items-center text-gray-300 text-sm py-1';
+                        cutItem.innerHTML = `<span>• ${cut.name} (${t.count}: ${cut.count})</span><span>${cut.length} mm</span>`;
                         cutsList.appendChild(cutItem);
                     }
                     barDiv.appendChild(cutsList);
@@ -515,11 +636,11 @@
                 const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
                 
                 const summary = document.createElement('div');
-                summary.className = 'mt-4 pt-4 border-t-2 border-gray-200 text-sm font-semibold text-gray-700';
+                summary.className = 'mt-4 pt-4 border-t-2 border-gray-600 text-sm font-semibold text-gray-300';
                 summary.innerHTML = `
-                    <p>إجمالي عدد الزوايا الخام المستخدمة: ${totalRawBars}</p>
-                    <p>إجمالي الهدر: ${totalWaste.toFixed(2)} مم</p>
-                    <p>نسبة الهدر: ${wastePercentage.toFixed(2)} %</p>
+                    <p>${t.totalBars}${totalRawBars}</p>
+                    <p>${t.totalWaste}${totalWaste.toFixed(2)} mm</p>
+                    <p>${t.wastePercentage}${wastePercentage.toFixed(2)} %</p>
                 `;
                 sectionDiv.appendChild(summary);
 
@@ -529,20 +650,21 @@
             EXPORT_BTN.style.display = 'block';
         }
 
-        // دالة لتصدير النتائج إلى ملف Excel
+        // Function to export results to an Excel file
         function exportToExcel() {
+            const t = translations[currentLang];
             if (Object.keys(finalCuttingPlan).length === 0) {
-                showMessage("لا توجد خطة قطع لتصديرها.", true);
+                showMessage(t.noPlanToExport, true);
                 return;
             }
 
             const wb = XLSX.utils.book_new();
 
-            // ورقة ملخص عام
+            // General summary sheet
             const summarySheetData = [
-                ['ملخص خطة القطع'],
+                [t.summaryTitle],
                 [],
-                ['القطاع', 'نوع الصلب', 'كود الخامة', 'عدد الزوايا المستخدمة', 'نسبة الكفاءة', 'نسبة الهدر']
+                t.summaryTableHeaders
             ];
             
             let totalRawBarsAll = 0;
@@ -569,7 +691,7 @@
                 });
                 
                 const [section, steelType] = groupKey.split('###');
-                const rawCode = rawMaterialCodes[groupKey] || 'غير متوفر';
+                const rawCode = rawMaterialCodes[groupKey] || t.notAvailable;
 
                 const totalSectionLength = totalRawBars * RAW_MATERIAL_LENGTH;
                 const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
@@ -593,16 +715,16 @@
             const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
             
             summarySheetData.push([]);
-            summarySheetData.push(['الإجمالي', '', '', totalRawBarsAll, totalEfficiencyPercentageAll.toFixed(2) + ' %', totalWastePercentageAll.toFixed(2) + ' %']);
+            summarySheetData.push([t.total, '', '', totalRawBarsAll, totalEfficiencyPercentageAll.toFixed(2) + ' %', totalWastePercentageAll.toFixed(2) + ' %']);
             
             const summaryWs = XLSX.utils.aoa_to_sheet(summarySheetData);
-            XLSX.utils.book_append_sheet(wb, summaryWs, 'ملخص عام');
+            XLSX.utils.book_append_sheet(wb, summaryWs, t.excelSummarySheet);
 
-            // ورقة بيان بالفضلات
+            // Waste report sheet
             const wastesWsData = [
-                ['بيان بالفضلات (طول ≥ 1500 مم)'],
+                [t.wasteReportTitle],
                 [],
-                ['طول الفضلة (مم)', 'القطاع', 'نوع الصلب', 'العدد']
+                t.wasteTableHeaders
             ];
             
             const groupedWastes = {};
@@ -624,9 +746,9 @@
             });
 
             const wastesWs = XLSX.utils.aoa_to_sheet(wastesWsData);
-            XLSX.utils.book_append_sheet(wb, wastesWs, 'بيان بالفضلات');
+            XLSX.utils.book_append_sheet(wb, wastesWs, t.excelWasteSheet);
 
-            // أوراق تفاصيل لكل قطاع
+            // Detailed plan sheets for each section
             for (const groupKey in finalCuttingPlan) {
                 const groupedBars = {};
                 finalCuttingPlan[groupKey].forEach(bar => {
@@ -641,9 +763,9 @@
                 const [section, steelType] = groupKey.split('###');
 
                 const wsData = [
-                    [`خطة القطع للقطاع: ${section} ونوع الصلب: ${steelType}`],
+                    [`${t.planTitle} ${section} ${t.planTitleSteel} ${steelType}`],
                     [],
-                    ['نموذج القطع', 'عدد التكرار', 'طول الزاوية الخام (مم)', 'القطع', 'طول القطعة (مم)', 'الكمية', 'الهدر المتبقي (مم)']
+                    [t.pattern, `${t.count} (${t.pattern})`, `Raw Bar Length (mm)`, `${t.item}s`, `Item Length (mm)`, t.count, `Remaining Waste (mm)`]
                 ];
 
                 let groupCounter = 1;
@@ -662,7 +784,7 @@
                     for (const cutKey in cutItems) {
                         const cut = cutItems[cutKey];
                         wsData.push([
-                            firstRow ? `نموذج ${groupCounter}` : '',
+                            firstRow ? `${t.pattern} ${groupCounter}` : '',
                             firstRow ? groupedBar.count : '',
                             firstRow ? groupedBar.originalLength : '',
                             cut.name,
@@ -673,22 +795,23 @@
                         firstRow = false;
                     }
                     groupCounter++;
-                    wsData.push([]); // إضافة صف فارغ للفصل بين النماذج
+                    wsData.push([]); // Add empty row to separate patterns
                 }
                 
-                const safeSheetName = `خطة ${section}-${steelType}`.replace(/[\\/:?*[\]]/g, '');
+                const safeSheetName = `${t.excelPlanSheet} ${section}-${steelType}`.replace(/[\\/:?*[\]]/g, '');
                 const ws = XLSX.utils.aoa_to_sheet(wsData);
                 XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
             }
             
-            XLSX.writeFile(wb, "خطة_القطع.xlsx");
-            showMessage("تم تصدير ملف Excel بنجاح!");
+            XLSX.writeFile(wb, "cutting_plan.xlsx");
+            showMessage(t.exportSuccess);
         }
         
-        // دالة معالجة الملف
+        // Function to process files
         async function processFiles() {
+            const t = translations[currentLang];
             if (!loadedItemsFile || !loadedCodesFile) {
-                showMessage("يرجى اختيار كلا الملفين أولاً.", true);
+                showMessage(t.chooseBothFiles, true);
                 return;
             }
 
@@ -698,10 +821,10 @@
             LOADING_DISPLAY.style.display = 'block';
 
             try {
-                // أولاً، قم بتحميل ملف أكواد الخامة
+                // First, load the raw material codes file
                 await loadCodesFile(loadedCodesFile);
 
-                // ثم، قم بمعالجة ملف البنود
+                // Then, process the items file
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const data = new Uint8Array(e.target.result);
@@ -712,7 +835,7 @@
 
                     if (items.length < 2 || items[0].length < 5) {
                         LOADING_DISPLAY.style.display = 'none';
-                        showMessage("صيغة ملف البنود غير صحيحة. يرجى التأكد من وجود 5 أعمدة.", true);
+                        showMessage(t.invalidItemsFormat, true);
                         return;
                     }
 
@@ -731,7 +854,7 @@
 
                 reader.onerror = () => {
                      LOADING_DISPLAY.style.display = 'none';
-                    showMessage("فشل في قراءة ملف البنود.", true);
+                    showMessage(t.failedToReadItems, true);
                 }
 
                 reader.readAsArrayBuffer(loadedItemsFile);
@@ -741,13 +864,14 @@
             }
         }
 
-        // حدث عند اختيار ملف البنود
+        // Event listener for items file selection
         ITEMS_FILE_INPUT.addEventListener('change', (event) => {
             loadedItemsFile = event.target.files[0];
+            const t = translations[currentLang];
             if (loadedItemsFile) {
                 ITEMS_FILE_NAME_DISPLAY.textContent = loadedItemsFile.name;
             } else {
-                ITEMS_FILE_NAME_DISPLAY.textContent = "لم يتم اختيار أي ملف";
+                ITEMS_FILE_NAME_DISPLAY.textContent = t.noFileChosen;
             }
             checkReadiness();
             REPORT_CONTAINER.innerHTML = '';
@@ -755,13 +879,14 @@
             hideMessages();
         });
 
-        // حدث عند اختيار ملف أكواد الخامة
+        // Event listener for codes file selection
         CODES_FILE_INPUT.addEventListener('change', (event) => {
             loadedCodesFile = event.target.files[0];
+            const t = translations[currentLang];
             if (loadedCodesFile) {
                 CODES_FILE_NAME_DISPLAY.textContent = loadedCodesFile.name;
             } else {
-                CODES_FILE_NAME_DISPLAY.textContent = "لم يتم اختيار أي ملف";
+                CODES_FILE_NAME_DISPLAY.textContent = t.noFileChosen;
             }
             checkReadiness();
             REPORT_CONTAINER.innerHTML = '';
@@ -769,10 +894,10 @@
             hideMessages();
         });
 
-        // حدث عند الضغط على زر التنفيذ
+        // Event listener for execute button click
         EXECUTE_BTN.addEventListener('click', processFiles);
 
-        // حدث عند الضغط على زر التصدير
+        // Event listener for export button click
         EXPORT_BTN.addEventListener('click', exportToExcel);
 
     </script>
