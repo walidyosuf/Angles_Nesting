@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="title">Cutting Plan Application</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -73,13 +72,27 @@
             background-color: #4a627a; /* Darker header */
             font-weight: 600;
         }
+
+        /* Print styles */
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+            .card {
+                box-shadow: none;
+                background-color: #fff;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-8">
 
     <div id="app" class="max-w-4xl mx-auto card mt-12 mb-12">
-        <!-- Language Toggle Button -->
-        <div class="flex justify-end mb-4">
+        <div class="flex justify-end mb-4 no-print">
             <button id="lang-toggle" class="btn btn-secondary text-sm">العربية</button>
         </div>
 
@@ -88,9 +101,7 @@
             Upload the Excel file containing the items to be cut, then the raw material codes file.
         </p>
 
-        <!-- File Input Area -->
-        <div class="space-y-4">
-            <!-- Items File -->
+        <div class="space-y-4 no-print">
             <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-xl p-6 hover:bg-gray-700 transition-colors">
                 <label for="items-file" class="cursor-pointer">
                     <div class="flex flex-col items-center">
@@ -104,7 +115,6 @@
                 <input type="file" id="items-file" class="hidden" accept=".xlsx, .xls">
             </div>
 
-            <!-- Codes File -->
             <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-xl p-6 hover:bg-gray-700 transition-colors">
                 <label for="codes-file" class="cursor-pointer">
                     <div class="flex flex-col items-center">
@@ -119,23 +129,21 @@
             </div>
         </div>
         
-        <!-- Action Buttons -->
-        <div class="flex justify-center items-center space-x-4 my-8">
+        <div class="flex justify-center items-center space-x-4 space-x-reverse my-8 no-print">
             <button id="execute-btn" class="btn btn-primary flex items-center" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                 </svg>
                 <span id="execute-btn-text">Execute</span>
             </button>
-            <button id="export-btn" class="btn btn-secondary flex items-center" style="display:none;" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2v-8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2z" />
+            <button id="print-pdf-btn" class="btn btn-secondary flex items-center" style="display:none;" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2v-4h-2m2-5h-2V6h2m-6 11h2v-4h-2m2-5h-2V6h2m-6 11h2v-4h-2m2-5h-2V6h2M6 18H4V6h16v12h-2" />
                 </svg>
-                <span id="export-btn-text">Export to Excel</span>
+                <span id="print-pdf-btn-text">Print / Export to PDF</span>
             </button>
         </div>
 
-        <!-- Results Area -->
         <div id="results" class="mt-8">
             <div id="loading" class="text-center text-gray-400 font-medium hidden">
                 Processing... Please wait
@@ -145,7 +153,6 @@
         </div>
     </div>
 
-    <!-- XLSX library for Excel file reading/writing -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <script>
@@ -155,7 +162,7 @@
         const ITEMS_FILE_NAME_DISPLAY = document.getElementById('items-file-name');
         const CODES_FILE_NAME_DISPLAY = document.getElementById('codes-file-name');
         const EXECUTE_BTN = document.getElementById('execute-btn');
-        const EXPORT_BTN = document.getElementById('export-btn');
+        const PRINT_PDF_BTN = document.getElementById('print-pdf-btn');
         const REPORT_CONTAINER = document.getElementById('report-container');
         const LOADING_DISPLAY = document.getElementById('loading');
         const MESSAGE_DISPLAY = document.getElementById('message');
@@ -179,7 +186,7 @@
                 codesLabel: "اختر ملف أكواد الخامة",
                 noFileChosen: "لم يتم اختيار أي ملف",
                 execute: "تنفيذ",
-                export: "تصدير إلى Excel",
+                printPdf: "طباعة / تصدير إلى PDF",
                 processing: "جاري المعالجة... يرجى الانتظار",
                 invalidItemsFormat: "صيغة ملف البنود غير صحيحة. يرجى التأكد من وجود 5 أعمدة.",
                 summaryTitle: "ملخص خطة القطع",
@@ -196,8 +203,6 @@
                 totalBars: "إجمالي عدد الزوايا الخام المستخدمة: ",
                 totalWaste: "إجمالي الهدر: ",
                 wastePercentage: "نسبة الهدر: ",
-                exportSuccess: "تم تصدير ملف Excel بنجاح!",
-                noPlanToExport: "لا توجد خطة قطع لتصديرها.",
                 failedToReadCodes: "فشل في قراءة ملف أكواد الخامة. يرجى التأكد من الصيغة.",
                 failedToReadItems: "فشل في قراءة ملف البنود.",
                 chooseBothFiles: "يرجى اختيار كلا الملفين أولاً.",
@@ -205,9 +210,6 @@
                 unspecified: "غير محدد",
                 notAvailable: "غير متوفر",
                 item: "بند",
-                excelSummarySheet: "ملخص عام",
-                excelWasteSheet: "بيان بالفضلات",
-                excelPlanSheet: "خطة"
             },
             en: {
                 title: "Cutting Plan Application",
@@ -216,7 +218,7 @@
                 codesLabel: "Choose Raw Material Codes File",
                 noFileChosen: "No file chosen",
                 execute: "Execute",
-                export: "Export to Excel",
+                printPdf: "Print / Export to PDF",
                 processing: "Processing... Please wait",
                 invalidItemsFormat: "Items file format is incorrect. Please ensure there are 5 columns.",
                 summaryTitle: "Cutting Plan Summary",
@@ -233,8 +235,6 @@
                 totalBars: "Total number of raw bars used: ",
                 totalWaste: "Total Waste: ",
                 wastePercentage: "Waste Percentage: ",
-                exportSuccess: "Excel file exported successfully!",
-                noPlanToExport: "No cutting plan to export.",
                 failedToReadCodes: "Failed to read the raw material codes file. Please check the format.",
                 failedToReadItems: "Failed to read the items file.",
                 chooseBothFiles: "Please choose both files first.",
@@ -242,9 +242,6 @@
                 unspecified: "Unspecified",
                 notAvailable: "Not available",
                 item: "Item",
-                excelSummarySheet: "Summary",
-                excelWasteSheet: "Waste Report",
-                excelPlanSheet: "Plan"
             }
         };
 
@@ -252,14 +249,12 @@
             currentLang = lang;
             const t = translations[lang];
 
-            // Update UI elements
             document.getElementById('title').textContent = t.title;
             document.getElementById('app-title').textContent = t.title;
             document.getElementById('app-description').textContent = t.description;
             document.getElementById('items-label').textContent = t.itemsLabel;
             document.getElementById('codes-label').textContent = t.codesLabel;
             
-            // Re-label file display names
             if (!loadedItemsFile) {
                 document.getElementById('items-file-name').textContent = t.noFileChosen;
             }
@@ -268,54 +263,42 @@
             }
             
             document.getElementById('execute-btn-text').textContent = t.execute;
-            document.getElementById('export-btn-text').textContent = t.export;
+            document.getElementById('print-pdf-btn-text').textContent = t.printPdf;
             document.getElementById('loading').textContent = t.processing;
             
-            // Update button text for language toggle
             LANG_TOGGLE.textContent = lang === 'ar' ? 'English' : 'العربية';
             BODY.dir = lang === 'ar' ? 'rtl' : 'ltr';
             BODY.style.textAlign = lang === 'ar' ? 'right' : 'left';
             
-            // Re-render report if it exists
             if (Object.keys(finalCuttingPlan).length > 0) {
                 displayReport(finalCuttingPlan);
             }
             hideMessages();
         }
 
-        // Toggle language on button click
         LANG_TOGGLE.addEventListener('click', () => {
             const newLang = currentLang === 'ar' ? 'en' : 'ar';
             setLanguage(newLang);
         });
 
-        // Set initial language
         document.addEventListener('DOMContentLoaded', () => {
             setLanguage('en');
         });
         
-        // Function to show a message to the user
         function showMessage(msg, isError = false) {
             MESSAGE_DISPLAY.textContent = msg;
             MESSAGE_DISPLAY.className = isError ? 'text-center text-red-400 font-medium' : 'text-center text-green-400 font-medium';
             MESSAGE_DISPLAY.style.display = 'block';
         }
 
-        // Function to hide messages
         function hideMessages() {
             MESSAGE_DISPLAY.style.display = 'none';
         }
         
-        // Function to check if execution is possible
         function checkReadiness() {
-            if (loadedItemsFile && loadedCodesFile) {
-                EXECUTE_BTN.disabled = false;
-            } else {
-                EXECUTE_BTN.disabled = true;
-            }
+            EXECUTE_BTN.disabled = !(loadedItemsFile && loadedCodesFile);
         }
 
-        // Function to load raw material codes file
         function loadCodesFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -348,7 +331,6 @@
             });
         }
 
-        // Function to group items by section and steel type
         function groupItemsBySection(items) {
             const grouped = {};
             items.forEach(item => {
@@ -359,7 +341,7 @@
                 const steelType = item[4] ? item[4].toString() : translations[currentLang].unspecified;
 
                 if (isNaN(length) || isNaN(quantity) || length <= 0 || quantity <= 0) {
-                    return; // Ignore invalid data
+                    return; 
                 }
 
                 const groupKey = `${section}###${steelType}`;
@@ -379,9 +361,7 @@
             return grouped;
         }
 
-        // Function to apply First Fit Decreasing (FFD) algorithm for cutting
         function calculateCuttingPlan(items, rawLength) {
-            // Sort items in descending order by length for better efficiency
             items.sort((a, b) => b.length - a.length);
 
             const bars = [];
@@ -389,10 +369,8 @@
 
             items.forEach(item => {
                 let foundFit = false;
-                // Find a suitable space in an existing raw bar
                 for (let i = 0; i < bars.length; i++) {
                     if (bars[i].remaining >= item.length) {
-                        // Found a fit!
                         bars[i].cuts.push(item);
                         bars[i].remaining -= item.length;
                         foundFit = true;
@@ -400,7 +378,6 @@
                     }
                 }
 
-                // If no fit found, start a new raw bar
                 if (!foundFit) {
                     bars.push({
                         id: barCounter++,
@@ -414,19 +391,17 @@
             return bars;
         }
 
-        // Function to generate and display the report on the screen
         function displayReport(plan) {
             const t = translations[currentLang];
-            REPORT_CONTAINER.innerHTML = ''; // Clear previous content
+            REPORT_CONTAINER.innerHTML = '';
             hideMessages();
 
             if (Object.keys(plan).length === 0) {
                 showMessage(t.noValidData, true);
-                EXPORT_BTN.style.display = 'none';
+                PRINT_PDF_BTN.style.display = 'none';
                 return;
             }
             
-            // Calculate overall statistics
             let totalRawBarsAll = 0;
             let totalWasteAll = 0;
             let totalLengthAll = 0;
@@ -438,12 +413,11 @@
                 const totalRawBars = sectionData.length;
                 let totalWaste = 0;
                 
-                // Calculate waste and cuts for each section and collect waste pieces
                 sectionData.forEach(bar => {
                     const remaining = bar.remaining;
                     totalWaste += remaining;
                     if (remaining >= MIN_WASTE_LENGTH) {
-                         const { section, steelType } = bar.cuts[0];
+                        const { section, steelType } = bar.cuts[0];
                         wastesList.push({
                             length: remaining,
                             section: section,
@@ -476,49 +450,40 @@
             const totalWastePercentageAll = (totalLengthAll > 0) ? (totalWasteAll / totalLengthAll) * 100 : 0;
             const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
 
-            // Build the summary table
             const summaryDiv = document.createElement('div');
             summaryDiv.className = 'report-section';
-            const summaryHeader = document.createElement('h2');
-            summaryHeader.className = 'report-header';
-            summaryHeader.textContent = t.summaryTitle;
-            summaryDiv.appendChild(summaryHeader);
-
-            const summaryTable = document.createElement('table');
-            summaryTable.className = 'summary-table';
-            summaryTable.innerHTML = `
-                <thead>
-                    <tr>
-                        ${t.summaryTableHeaders.map(h => `<th>${h}</th>`).join('')}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${summaryData.map(item => `
-                        <tr>
-                            <td>${item.section}</td>
-                            <td>${item.steelType}</td>
-                            <td>${item.rawCode}</td>
-                            <td>${item.rawBars}</td>
-                            <td>${item.efficiency.toFixed(2)} %</td>
-                            <td>${item.waste.toFixed(2)} %</td>
+            summaryDiv.innerHTML = `
+                <h2 class="report-header">${t.summaryTitle}</h2>
+                <table class="summary-table">
+                    <thead>
+                        <tr>${t.summaryTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>
+                        ${summaryData.map(item => `
+                            <tr>
+                                <td>${item.section}</td>
+                                <td>${item.steelType}</td>
+                                <td>${item.rawCode}</td>
+                                <td>${item.rawBars}</td>
+                                <td>${item.efficiency.toFixed(2)} %</td>
+                                <td>${item.waste.toFixed(2)} %</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-bold">
+                            <td>${t.total}</td>
+                            <td></td>
+                            <td></td>
+                            <td>${totalRawBarsAll}</td>
+                            <td>${totalEfficiencyPercentageAll.toFixed(2)} %</td>
+                            <td>${totalWastePercentageAll.toFixed(2)} %</td>
                         </tr>
-                    `).join('')}
-                </tbody>
-                <tfoot>
-                    <tr class="font-bold">
-                        <td>${t.total}</td>
-                        <td></td>
-                        <td></td>
-                        <td>${totalRawBarsAll}</td>
-                        <td>${totalEfficiencyPercentageAll.toFixed(2)} %</td>
-                        <td>${totalWastePercentageAll.toFixed(2)} %</td>
-                    </tr>
-                </tfoot>
+                    </tfoot>
+                </table>
             `;
-            summaryDiv.appendChild(summaryTable);
             REPORT_CONTAINER.appendChild(summaryDiv);
             
-            // Build the waste report
             const wastesDiv = document.createElement('div');
             wastesDiv.className = 'report-section';
             const wastesHeader = document.createElement('h2');
@@ -527,52 +492,38 @@
             wastesDiv.appendChild(wastesHeader);
 
             if (wastesList.length === 0) {
-                const noWastesMessage = document.createElement('p');
-                noWastesMessage.className = 'text-center text-gray-500';
-                noWastesMessage.textContent = t.noWaste;
-                wastesDiv.appendChild(noWastesMessage);
+                wastesDiv.innerHTML += `<p class="text-center text-gray-400">${t.noWaste}</p>`;
             } else {
-                // Group waste pieces by length, section, and steel type
                 const groupedWastes = {};
                 wastesList.forEach(waste => {
                     const key = `${waste.length.toFixed(2)}-${waste.section}-${waste.steelType}`;
                     if (!groupedWastes[key]) {
-                        groupedWastes[key] = {
-                            length: waste.length,
-                            section: waste.section,
-                            steelType: waste.steelType,
-                            count: 0
-                        };
+                        groupedWastes[key] = { ...waste, count: 0 };
                     }
                     groupedWastes[key].count++;
                 });
 
-                const wastesTable = document.createElement('table');
-                wastesTable.className = 'summary-table';
-                wastesTable.innerHTML = `
-                    <thead>
-                        <tr>
-                            ${t.wasteTableHeaders.map(h => `<th>${h}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${Object.values(groupedWastes).sort((a, b) => b.length - a.length).map(waste => `
-                            <tr>
-                                <td>${waste.length.toFixed(2)}</td>
-                                <td>${waste.section}</td>
-                                <td>${waste.steelType}</td>
-                                <td>${waste.count}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
+                wastesDiv.innerHTML += `
+                    <table class="summary-table">
+                        <thead>
+                            <tr>${t.wasteTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
+                        </thead>
+                        <tbody>
+                            ${Object.values(groupedWastes).sort((a, b) => b.length - a.length).map(waste => `
+                                <tr>
+                                    <td>${waste.length.toFixed(2)}</td>
+                                    <td>${waste.section}</td>
+                                    <td>${waste.steelType}</td>
+                                    <td>${waste.count}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 `;
-                wastesDiv.appendChild(wastesTable);
             }
             REPORT_CONTAINER.appendChild(wastesDiv);
 
-            // Build detailed report for each section
             for (const groupKey in plan) {
-                // Group similar raw bars
                 const groupedBars = {};
                 plan[groupKey].forEach(bar => {
                     const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
@@ -584,31 +535,17 @@
                 });
                 
                 const [section, steelType] = groupKey.split('###');
-
                 const sectionDiv = document.createElement('div');
                 sectionDiv.className = 'report-section';
-                const header = document.createElement('h2');
-                header.className = 'report-header';
-                header.textContent = `${t.planTitle} ${section} ${t.planTitleSteel} ${steelType}`;
-                sectionDiv.appendChild(header);
+                sectionDiv.innerHTML = `<h2 class="report-header">${t.planTitle} ${section} ${t.planTitleSteel} ${steelType}</h2>`;
 
                 let totalRawBars = plan[groupKey].length;
                 let totalWaste = 0;
-                
                 let groupCounter = 1;
+
                 for (const key in groupedBars) {
                     const groupedBar = groupedBars[key];
-                    const barDiv = document.createElement('div');
-                    barDiv.className = 'bg-gray-800 rounded-lg p-4 mb-4';
-
-                    const barHeader = document.createElement('div');
-                    barHeader.className = 'flex justify-between items-center font-semibold text-gray-200 border-b-2 border-gray-600 pb-2 mb-2';
-                    barHeader.innerHTML = `<span>${t.pattern} ${groupCounter++} (${t.count}: ${groupedBar.count})</span>
-                                           <span>${t.waste}: ${groupedBar.remaining.toFixed(2)} mm</span>`;
-                    barDiv.appendChild(barHeader);
-
-                    const cutsList = document.createElement('ul');
-                    // Group repeated cuts
+                    
                     const groupedCuts = {};
                     groupedBar.cuts.forEach(cut => {
                         const cutKey = `${cut.name}-${cut.length}`;
@@ -617,289 +554,112 @@
                         }
                         groupedCuts[cutKey].count++;
                     });
-
-                    // Display grouped cuts
+                    
+                    let cutsHtml = '';
                     for (const cutKey in groupedCuts) {
                         const cut = groupedCuts[cutKey];
-                        const cutItem = document.createElement('li');
-                        cutItem.className = 'flex justify-between items-center text-gray-300 text-sm py-1';
-                        cutItem.innerHTML = `<span>• ${cut.name} (${t.count}: ${cut.count})</span><span>${cut.length} mm</span>`;
-                        cutsList.appendChild(cutItem);
+                        cutsHtml += `<li class="flex justify-between items-center text-gray-300 text-sm py-1"><span>• ${cut.name} (${t.count}: ${cut.count})</span><span>${cut.length} mm</span></li>`;
                     }
-                    barDiv.appendChild(cutsList);
-
+                    
+                    sectionDiv.innerHTML += `
+                        <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                            <div class="flex justify-between items-center font-semibold text-gray-200 border-b-2 border-gray-600 pb-2 mb-2">
+                                <span>${t.pattern} ${groupCounter++} (${t.count}: ${groupedBar.count})</span>
+                                <span>${t.waste}: ${groupedBar.remaining.toFixed(2)} mm</span>
+                            </div>
+                            <ul>${cutsHtml}</ul>
+                        </div>
+                    `;
                     totalWaste += groupedBar.remaining * groupedBar.count;
-                    sectionDiv.appendChild(barDiv);
                 }
 
                 const totalSectionLength = totalRawBars * RAW_MATERIAL_LENGTH;
                 const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
                 
-                const summary = document.createElement('div');
-                summary.className = 'mt-4 pt-4 border-t-2 border-gray-600 text-sm font-semibold text-gray-300';
-                summary.innerHTML = `
-                    <p>${t.totalBars}${totalRawBars}</p>
-                    <p>${t.totalWaste}${totalWaste.toFixed(2)} mm</p>
-                    <p>${t.wastePercentage}${wastePercentage.toFixed(2)} %</p>
+                sectionDiv.innerHTML += `
+                    <div class="mt-4 pt-4 border-t-2 border-gray-600 text-sm font-semibold text-gray-300">
+                        <p>${t.totalBars}${totalRawBars}</p>
+                        <p>${t.totalWaste}${totalWaste.toFixed(2)} mm</p>
+                        <p>${t.wastePercentage}${wastePercentage.toFixed(2)} %</p>
+                    </div>
                 `;
-                sectionDiv.appendChild(summary);
-
                 REPORT_CONTAINER.appendChild(sectionDiv);
             }
 
-            EXPORT_BTN.style.display = 'block';
+            PRINT_PDF_BTN.style.display = 'flex';
+            PRINT_PDF_BTN.disabled = false;
         }
 
-        // Function to export results to an Excel file
-        function exportToExcel() {
-            const t = translations[currentLang];
-            if (Object.keys(finalCuttingPlan).length === 0) {
-                showMessage(t.noPlanToExport, true);
-                return;
-            }
+        // --- Event Listeners and Execution Flow ---
+        ITEMS_FILE_INPUT.addEventListener('change', (e) => {
+            loadedItemsFile = e.target.files[0];
+            ITEMS_FILE_NAME_DISPLAY.textContent = loadedItemsFile ? loadedItemsFile.name : translations[currentLang].noFileChosen;
+            checkReadiness();
+        });
 
-            const wb = XLSX.utils.book_new();
+        CODES_FILE_INPUT.addEventListener('change', (e) => {
+            loadedCodesFile = e.target.files[0];
+            CODES_FILE_NAME_DISPLAY.textContent = loadedCodesFile ? loadedCodesFile.name : translations[currentLang].noFileChosen;
+            checkReadiness();
+        });
 
-            // General summary sheet
-            const summarySheetData = [
-                [t.summaryTitle],
-                [],
-                t.summaryTableHeaders
-            ];
-            
-            let totalRawBarsAll = 0;
-            let totalWasteAll = 0;
-            let totalLengthAll = 0;
-            const wastesList = [];
-
-            for (const groupKey in finalCuttingPlan) {
-                const sectionData = finalCuttingPlan[groupKey];
-                const totalRawBars = sectionData.length;
-                let totalWaste = 0;
-                
-                sectionData.forEach(bar => {
-                    const remaining = bar.remaining;
-                    totalWaste += remaining;
-                    if (remaining >= MIN_WASTE_LENGTH) {
-                        const { section, steelType } = bar.cuts[0];
-                        wastesList.push({
-                            length: remaining,
-                            section: section,
-                            steelType: steelType
-                        });
-                    }
-                });
-                
-                const [section, steelType] = groupKey.split('###');
-                const rawCode = rawMaterialCodes[groupKey] || t.notAvailable;
-
-                const totalSectionLength = totalRawBars * RAW_MATERIAL_LENGTH;
-                const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
-                const efficiencyPercentage = 100 - wastePercentage;
-                
-                summarySheetData.push([
-                    section,
-                    steelType,
-                    rawCode,
-                    totalRawBars,
-                    efficiencyPercentage.toFixed(2) + ' %',
-                    wastePercentage.toFixed(2) + ' %'
-                ]);
-
-                totalRawBarsAll += totalRawBars;
-                totalWasteAll += totalWaste;
-                totalLengthAll += totalSectionLength;
-            }
-            
-            const totalWastePercentageAll = (totalLengthAll > 0) ? (totalWasteAll / totalLengthAll) * 100 : 0;
-            const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
-            
-            summarySheetData.push([]);
-            summarySheetData.push([t.total, '', '', totalRawBarsAll, totalEfficiencyPercentageAll.toFixed(2) + ' %', totalWastePercentageAll.toFixed(2) + ' %']);
-            
-            const summaryWs = XLSX.utils.aoa_to_sheet(summarySheetData);
-            XLSX.utils.book_append_sheet(wb, summaryWs, t.excelSummarySheet);
-
-            // Waste report sheet
-            const wastesWsData = [
-                [t.wasteReportTitle],
-                [],
-                t.wasteTableHeaders
-            ];
-            
-            const groupedWastes = {};
-            wastesList.forEach(waste => {
-                const key = `${waste.length.toFixed(2)}-${waste.section}-${waste.steelType}`;
-                if (!groupedWastes[key]) {
-                    groupedWastes[key] = {
-                        length: waste.length,
-                        section: waste.section,
-                        steelType: waste.steelType,
-                        count: 0
-                    };
-                }
-                groupedWastes[key].count++;
-            });
-
-            Object.values(groupedWastes).sort((a,b) => b.length - a.length).forEach(waste => {
-                wastesWsData.push([waste.length.toFixed(2), waste.section, waste.steelType, waste.count]);
-            });
-
-            const wastesWs = XLSX.utils.aoa_to_sheet(wastesWsData);
-            XLSX.utils.book_append_sheet(wb, wastesWs, t.excelWasteSheet);
-
-            // Detailed plan sheets for each section
-            for (const groupKey in finalCuttingPlan) {
-                const groupedBars = {};
-                finalCuttingPlan[groupKey].forEach(bar => {
-                    const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
-                    const key = `${cutsPattern}|${bar.remaining.toFixed(2)}`;
-                    if (!groupedBars[key]) {
-                        groupedBars[key] = { ...bar, count: 0 };
-                    }
-                    groupedBars[key].count++;
-                });
-                
-                const [section, steelType] = groupKey.split('###');
-
-                const wsData = [
-                    [`${t.planTitle} ${section} ${t.planTitleSteel} ${steelType}`],
-                    [],
-                    [t.pattern, `${t.count} (${t.pattern})`, `Raw Bar Length (mm)`, `${t.item}s`, `Item Length (mm)`, t.count, `Remaining Waste (mm)`]
-                ];
-
-                let groupCounter = 1;
-                for (const key in groupedBars) {
-                    const groupedBar = groupedBars[key];
-                    const cutItems = {};
-                    groupedBar.cuts.forEach(cut => {
-                        const cutKey = `${cut.name}-${cut.length}`;
-                        if (!cutItems[cutKey]) {
-                            cutItems[cutKey] = { ...cut, count: 0 };
-                        }
-                        cutItems[cutKey].count++;
-                    });
-                    
-                    let firstRow = true;
-                    for (const cutKey in cutItems) {
-                        const cut = cutItems[cutKey];
-                        wsData.push([
-                            firstRow ? `${t.pattern} ${groupCounter}` : '',
-                            firstRow ? groupedBar.count : '',
-                            firstRow ? groupedBar.originalLength : '',
-                            cut.name,
-                            cut.length,
-                            cut.count,
-                            firstRow ? groupedBar.remaining.toFixed(2) : ''
-                        ]);
-                        firstRow = false;
-                    }
-                    groupCounter++;
-                    wsData.push([]); // Add empty row to separate patterns
-                }
-                
-                const safeSheetName = `${t.excelPlanSheet} ${section}-${steelType}`.replace(/[\\/:?*[\]]/g, '');
-                const ws = XLSX.utils.aoa_to_sheet(wsData);
-                XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
-            }
-            
-            XLSX.writeFile(wb, "cutting_plan.xlsx");
-            showMessage(t.exportSuccess);
-        }
-        
-        // Function to process files
-        async function processFiles() {
-            const t = translations[currentLang];
+        EXECUTE_BTN.addEventListener('click', async () => {
             if (!loadedItemsFile || !loadedCodesFile) {
-                showMessage(t.chooseBothFiles, true);
+                showMessage(translations[currentLang].chooseBothFiles, true);
                 return;
             }
-
-            REPORT_CONTAINER.innerHTML = '';
-            EXPORT_BTN.style.display = 'none';
-            hideMessages();
+            
             LOADING_DISPLAY.style.display = 'block';
+            REPORT_CONTAINER.innerHTML = '';
+            hideMessages();
+            finalCuttingPlan = {};
 
             try {
-                // First, load the raw material codes file
                 await loadCodesFile(loadedCodesFile);
 
-                // Then, process the items file
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const items = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const itemsData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-                    if (items.length < 2 || items[0].length < 5) {
+                        if (itemsData.length > 0 && itemsData[0].length < 5) {
+                            throw new Error(translations[currentLang].invalidItemsFormat);
+                        }
+
+                        const groupedItems = groupItemsBySection(itemsData);
+
+                        for (const groupKey in groupedItems) {
+                            const items = groupedItems[groupKey];
+                            finalCuttingPlan[groupKey] = calculateCuttingPlan(items, RAW_MATERIAL_LENGTH);
+                        }
+                        
+                        displayReport(finalCuttingPlan);
+
+                    } catch (error) {
+                        showMessage(error.message || translations[currentLang].failedToReadItems, true);
+                    } finally {
                         LOADING_DISPLAY.style.display = 'none';
-                        showMessage(t.invalidItemsFormat, true);
-                        return;
                     }
-
-                    items.shift();
-                    const groupedItems = groupItemsBySection(items);
-                    finalCuttingPlan = {};
-
-                    for (const groupKey in groupedItems) {
-                        const plan = calculateCuttingPlan(groupedItems[groupKey], RAW_MATERIAL_LENGTH);
-                        finalCuttingPlan[groupKey] = plan;
-                    }
-
-                    LOADING_DISPLAY.style.display = 'none';
-                    displayReport(finalCuttingPlan);
                 };
-
                 reader.onerror = () => {
-                     LOADING_DISPLAY.style.display = 'none';
-                    showMessage(t.failedToReadItems, true);
-                }
-
+                    showMessage(translations[currentLang].failedToReadItems, true);
+                    LOADING_DISPLAY.style.display = 'none';
+                };
                 reader.readAsArrayBuffer(loadedItemsFile);
+
             } catch (error) {
-                LOADING_DISPLAY.style.display = 'none';
                 showMessage(error, true);
+                LOADING_DISPLAY.style.display = 'none';
             }
-        }
-
-        // Event listener for items file selection
-        ITEMS_FILE_INPUT.addEventListener('change', (event) => {
-            loadedItemsFile = event.target.files[0];
-            const t = translations[currentLang];
-            if (loadedItemsFile) {
-                ITEMS_FILE_NAME_DISPLAY.textContent = loadedItemsFile.name;
-            } else {
-                ITEMS_FILE_NAME_DISPLAY.textContent = t.noFileChosen;
-            }
-            checkReadiness();
-            REPORT_CONTAINER.innerHTML = '';
-            EXPORT_BTN.style.display = 'none';
-            hideMessages();
         });
-
-        // Event listener for codes file selection
-        CODES_FILE_INPUT.addEventListener('change', (event) => {
-            loadedCodesFile = event.target.files[0];
-            const t = translations[currentLang];
-            if (loadedCodesFile) {
-                CODES_FILE_NAME_DISPLAY.textContent = loadedCodesFile.name;
-            } else {
-                CODES_FILE_NAME_DISPLAY.textContent = t.noFileChosen;
-            }
-            checkReadiness();
-            REPORT_CONTAINER.innerHTML = '';
-            EXPORT_BTN.style.display = 'none';
-            hideMessages();
+        
+        PRINT_PDF_BTN.addEventListener('click', () => {
+            window.print();
         });
-
-        // Event listener for execute button click
-        EXECUTE_BTN.addEventListener('click', processFiles);
-
-        // Event listener for export button click
-        EXPORT_BTN.addEventListener('click', exportToExcel);
-
     </script>
 </body>
 </html>
