@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -6,164 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="title">Cutting Plan Application</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Custom Tailwind configuration */
-        @tailwind base;
-        @tailwind components;
-        @tailwind utilities;
-        
-        /* Global styles */
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2c3e50;
+            --accent: #1abc9c;
+            --accent-dark: #16a085;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --card-bg: #34495e;
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            direction: ltr;
-            text-align: left;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6580 100%);
+            color: var(--light);
             min-height: 100vh;
             padding: 0;
             margin: 0;
         }
-        .rtl {
-            direction: rtl;
-            text-align: right;
-        }
         .card {
-            background-color: #34495e;
+            background-color: var(--card-bg);
             border-radius: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             padding: 1.5rem;
-            margin: 0.5rem;
-            width: 100%;
+            margin: 1rem 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
         }
         .btn {
             padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
+            border-radius: 50px;
             font-weight: 600;
-            transition: background-color 0.3s, transform 0.1s;
-            width: 100%;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: center;
+            transition: all 0.3s;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+            outline: none;
         }
         .btn-primary {
-            background-color: #1abc9c;
-            color: #ffffff;
+            background: linear-gradient(to right, var(--accent), var(--accent-dark));
+            color: white;
         }
         .btn-primary:hover {
-            background-color: #16a085;
+            background: linear-gradient(to right, var(--accent-dark), var(--accent));
+            box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
         }
         .btn-secondary {
-            background-color: #bdc3c7;
-            color: #2c3e50;
-            border: 1px solid #95a5a6;
+            background: linear-gradient(to right, #95a5a6, #7f8c8d);
+            color: white;
         }
         .btn-secondary:hover {
-            background-color: #95a5a6;
-        }
-        .report-section {
-            border: 1px solid #7f8c8d;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background-color: #34495e;
-            overflow-x: auto;
-        }
-        .report-header {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ecf0f1;
-            margin-bottom: 0.75rem;
-        }
-        .summary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-            min-width: 600px;
-        }
-        .summary-table th, .summary-table td {
-            border: 1px solid #7f8c8d;
-            padding: 0.5rem;
-            text-align: center;
-            font-size: 0.875rem;
-        }
-        .summary-table th {
-            background-color: #4a627a;
-            font-weight: 600;
+            background: linear-gradient(to right, #7f8c8d, #6c7a7b);
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
         }
         .file-upload-area {
-            border: 2px dashed #7f8c8d;
+            border: 2px dashed var(--gray);
             border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: background-color 0.3s;
+            padding: 2rem;
+            transition: all 0.3s;
             text-align: center;
-            min-height: 100px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(52, 73, 94, 0.5);
+            cursor: pointer;
         }
-        .file-upload-area:hover {
-            background-color: #3d5066;
+        .file-upload-area:hover, .file-upload-area.dragover {
+            background-color: rgba(61, 80, 102, 0.8);
+            border-color: var(--accent);
         }
-        .waste-table {
+        .file-upload-area i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+        .summary-table, .waste-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1rem;
-            min-width: 500px;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
+        .summary-table th, .summary-table td,
         .waste-table th, .waste-table td {
-            border: 1px solid #7f8c8d;
-            padding: 0.5rem;
+            padding: 0.75rem 1rem;
             text-align: center;
-            font-size: 0.875rem;
+            border: 1px solid #4a627a;
         }
-        .waste-table th {
-            background-color: #4a627a;
+        .summary-table th, .waste-table th {
+            background: linear-gradient(to bottom, #4a627a, #3d5066);
             font-weight: 600;
+            color: white;
         }
-        .cutting-plan-section {
-            margin-bottom: 1.5rem;
+        .summary-table tr:nth-child(even),
+        .waste-table tr:nth-child(even) {
+            background-color: rgba(52, 73, 94, 0.5);
         }
-        .cutting-plan-header {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #ecf0f1;
-            margin-bottom: 1rem;
+        .summary-table tr:hover,
+        .waste-table tr:hover {
+            background-color: rgba(74, 98, 122, 0.5);
         }
         .cutting-plan-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1rem;
+            margin-top: 1rem;
         }
         .cutting-plan-card {
-            background-color: #2c3e50;
+            background: linear-gradient(to bottom, var(--card-bg), #2c3e50);
             border-radius: 0.5rem;
             padding: 1rem;
-            border: 1px solid #7f8c8d;
+            border: 1px solid #4a627a;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
         }
-        .cutting-plan-pattern {
-            background-color: #34495e;
-            border-radius: 0.375rem;
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-        .cutting-plan-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        .cutting-plan-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        .cutting-plan-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.25rem 0;
-            border-bottom: 1px solid #4a627a;
-        }
-        .cutting-plan-item:last-child {
-            border-bottom: none;
+        .cutting-plan-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
         .stats-container {
             display: flex;
@@ -176,757 +146,900 @@
         .stats-item {
             display: flex;
             justify-content: space-between;
+            padding: 0.25rem 0;
         }
-        .stats-label {
-            font-weight: 500;
-            color: #bdc3c7;
+        .progress-bar {
+            height: 8px;
+            background-color: #4a627a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.25rem;
         }
-        .stats-value {
-            font-weight: 600;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--accent), var(--accent-dark));
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out;
         }
-        .no-waste {
-            text-align: center;
-            padding: 1rem;
-            color: #bdc3c7;
+        .lang-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 0.25rem;
+            cursor: pointer;
         }
-
+        .lang-toggle-handle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .lang-toggle.ar .lang-toggle-handle {
+            left: calc(100% - 26px);
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
         /* Responsive adjustments */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .card {
                 padding: 1rem;
-                margin: 0.5rem;
-                border-radius: 0.75rem;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            .btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.875rem;
-                margin-bottom: 0.5rem;
-                width: 100%;
+                margin: 0.5rem 0;
             }
             .file-upload-area {
-                padding: 1rem;
-                min-height: 80px;
-            }
-            .report-section {
-                padding: 0.75rem;
-            }
-            .summary-table th, .summary-table td {
-                padding: 0.3rem;
-                font-size: 0.75rem;
-            }
-            .waste-table th, .waste-table td {
-                padding: 0.3rem;
-                font-size: 0.75rem;
+                padding: 1.5rem;
+                min-height: 120px;
             }
             .cutting-plan-grid {
                 grid-template-columns: 1fr;
             }
-            .cutting-plan-card {
-                padding: 0.75rem;
+            .summary-table, .waste-table {
+                font-size: 0.8rem;
             }
-            .cutting-plan-pattern {
+            .summary-table th, .summary-table td,
+            .waste-table th, .waste-table td {
                 padding: 0.5rem;
             }
-            .cutting-plan-details {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.25rem;
-            }
-            .cutting-plan-item {
-                font-size: 0.8rem;
-                padding: 0.2rem 0;
-            }
-            .stats-container {
-                gap: 0.25rem;
-            }
-            .stats-item {
-                font-size: 0.8rem;
-            }
         }
-
         /* Print styles */
         @media print {
             body {
-                background-color: #fff;
-                color: #000;
-                margin: 0;
-                padding: 0;
-                page-break-before: avoid;
+                background: white;
+                color: black;
             }
             .card {
                 box-shadow: none;
-                background-color: #fff;
-                margin: 0;
-                padding: 0;
+                border: 1px solid #ddd;
+                background: white;
             }
             .no-print {
                 display: none !important;
             }
-            .report-section {
-                page-break-inside: avoid;
-                margin: 0.5rem 0;
-            }
             .summary-table, .waste-table {
-                width: 100%;
-                page-break-inside: auto;
+                box-shadow: none;
+                border: 1px solid #ddd;
             }
-            .cutting-plan-section {
-                page-break-inside: avoid;
-                margin: 0;
-                padding: 0;
-            }
-            #app-title {
-                page-break-after: avoid;
-                margin-bottom: 0.5rem;
-            }
-            #app-description {
-                page-break-after: avoid;
-                margin-bottom: 1rem;
-            }
-            #app {
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                margin: 0;
-                padding: 0;
-            }
-            .card {
-                margin-top: 0;
-                padding-top: 0;
-            }
-            .report-section {
-                page-break-before: avoid;
+            .summary-table th, .waste-table th {
+                background: #f0f0f0 !important;
+                color: black !important;
             }
         }
     </style>
 </head>
-<body class="bg-gray-100 p-2 sm:p-8">
-
-    <div id="app" class="max-w-4xl mx-auto card mt-4 mb-4">
-        <div class="flex justify-end mb-4 no-print">
-            <button id="lang-toggle" class="btn btn-secondary text-sm py-2">العربية</button>
-        </div>
-
-        <h1 id="app-title" class="text-2xl sm:text-3xl font-bold text-center text-white mb-4">Linear cutting plan for Profiles</h1>
-        <p id="app-description" class="text-center text-gray-300 mb-6 text-sm sm:text-base">
-            Upload the Excel file containing the items to be cut, then the raw material codes file.
-        </p>
-
-        <div class="space-y-4 no-print">
-            <div class="file-upload-area">
-                <label for="items-file" class="cursor-pointer w-full">
-                    <div class="flex flex-col items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h10a2 2 0 012 2v1m-4 5h-1a2 2 0 00-2 2v-1h-1a2 2 0 00-2 2v-1z" />
-                        </svg>
-                        <span id="items-label" class="mt-2 text-gray-300 font-semibold text-sm sm:text-base">Choose Items File</span>
-                        <span id="items-file-name" class="text-xs sm:text-sm text-gray-400 mt-1">No file chosen</span>
+<body class="p-2 sm:p-4 md:p-6">
+    <div id="app" class="max-w-6xl mx-auto">
+        <div class="card">
+            <div class="flex justify-between items-center mb-6 no-print">
+                <div class="lang-toggle" id="lang-toggle">
+                    <span class="lang-toggle-handle"></span>
+                    <span class="px-2">EN</span>
+                    <span class="px-2">AR</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-center text-white flex-1">
+                    <i class="fas fa-ruler-combined mr-3"></i>
+                    <span id="app-title">Linear cutting plan for Profiles</span>
+                </h1>
+            </div>
+            <p id="app-description" class="text-center text-gray-300 mb-8 text-lg">
+                Upload the Excel file containing the items to be cut, then the raw material codes file.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 no-print">
+                <div class="file-upload-area" id="items-upload-area">
+                    <input type="file" id="items-file" class="hidden" accept=".xlsx, .xls">
+                    <i class="fas fa-file-excel"></i>
+                    <span id="items-label" class="text-gray-300 font-semibold text-lg">Choose Items File</span>
+                    <span id="items-file-name" class="text-gray-400 mt-2">No file chosen</span>
+                    <p class="text-sm text-gray-400 mt-3">Drag & drop your file here</p>
+                </div>
+                <div class="file-upload-area" id="codes-upload-area">
+                    <input type="file" id="codes-file" class="hidden" accept=".xlsx, .xls">
+                    <i class="fas fa-file-code"></i>
+                    <span id="codes-label" class="text-gray-300 font-semibold text-lg">Choose Raw Material Codes File</span>
+                    <span id="codes-file-name" class="text-gray-400 mt-2">No file chosen</span>
+                    <p class="text-sm text-gray-400 mt-3">Drag & drop your file here</p>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 my-6 no-print">
+                <button id="execute-btn" class="btn btn-primary" disabled>
+                    <i class="fas fa-play-circle"></i>
+                    <span id="execute-btn-text">Execute</span>
+                </button>
+                <button id="print-pdf-btn" class="btn btn-secondary" style="display:none;" disabled>
+                    <i class="fas fa-print"></i>
+                    <span id="print-pdf-btn-text">Print / Export to PDF</span>
+                </button>
+            </div>
+            <div id="results" class="mt-6">
+                <div id="loading" class="text-center py-8 hidden">
+                    <div class="inline-flex items-center justify-center p-4 bg-blue-900/30 rounded-lg">
+                        <i class="fas fa-spinner fa-spin text-3xl text-blue-400 mr-3"></i>
+                        <span class="text-xl text-blue-300">Processing... Please wait</span>
                     </div>
-                </label>
-                <input type="file" id="items-file" class="hidden" accept=".xlsx, .xls">
+                </div>
+                <div id="message" class="p-4 rounded-lg text-center font-medium hidden"></div>
+                <div id="report-container" class="space-y-6"></div>
             </div>
-
-            <div class="file-upload-area">
-                <label for="codes-file" class="cursor-pointer w-full">
-                    <div class="flex flex-col items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                        </svg>
-                        <span id="codes-label" class="mt-2 text-gray-300 font-semibold text-sm sm:text-base">Choose Raw Material Codes File</span>
-                        <span id="codes-file-name" class="text-xs sm:text-sm text-gray-400 mt-1">No file chosen</span>
-                    </div>
-                </label>
-                <input type="file" id="codes-file" class="hidden" accept=".xlsx, .xls">
-            </div>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row sm:justify-center sm:items-center sm:space-x-4 space-y-2 sm:space-y-0 my-6 no-print">
-            <button id="execute-btn" class="btn btn-primary flex items-center justify-center py-2" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                </svg>
-                <span id="execute-btn-text">Execute</span>
-            </button>
-            <button id="print-pdf-btn" class="btn btn-secondary flex items-center justify-center py-2" style="display:none;" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2v-4h-2m2-5h-2V6h2m-6 11h2v-4h-2m2-5h-2V6h2m-6 11h2v-4h-2m2-5h-2V6h2M6 18H4V6h16v12h-2" />
-                </svg>
-                <span id="print-pdf-btn-text">Print / Export to PDF</span>
-            </button>
-        </div>
-
-        <div id="results" class="mt-6">
-            <div id="loading" class="text-center text-gray-400 font-medium hidden">
-                Processing... Please wait
-            </div>
-            <div id="message" class="text-center text-red-400 font-medium hidden"></div>
-            <div id="report-container"></div>
         </div>
     </div>
-
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-
     <script>
-        // Main variables
-        const ITEMS_FILE_INPUT = document.getElementById('items-file');
-        const CODES_FILE_INPUT = document.getElementById('codes-file');
-        const ITEMS_FILE_NAME_DISPLAY = document.getElementById('items-file-name');
-        const CODES_FILE_NAME_DISPLAY = document.getElementById('codes-file-name');
-        const EXECUTE_BTN = document.getElementById('execute-btn');
-        const PRINT_PDF_BTN = document.getElementById('print-pdf-btn');
-        const REPORT_CONTAINER = document.getElementById('report-container');
-        const LOADING_DISPLAY = document.getElementById('loading');
-        const MESSAGE_DISPLAY = document.getElementById('message');
-        const LANG_TOGGLE = document.getElementById('lang-toggle');
-        const BODY = document.querySelector('body');
-
-        const RAW_MATERIAL_LENGTH = 12000; // Default raw material length (mm)
-        const MIN_WASTE_LENGTH = 1500; // Minimum waste length to display
-
-        let finalCuttingPlan = {}; // To store the final cutting plan
-        let rawMaterialCodes = {}; // To store raw material codes
-        let loadedItemsFile = null;
-        let loadedCodesFile = null;
-        let currentLang = 'en';
-
-        const translations = {
-            ar: {
-                title: "تطبيق خطة القطع",
-                description: "قم بتحميل ملف Excel الذي يحتوي على البنود المراد تقطيعها، ثم ملف أكواد الخامة.",
-                itemsLabel: "اختر ملف البنود",
-                codesLabel: "اختر ملف أكواد الخامة",
-                noFileChosen: "لم يتم اختيار أي ملف",
-                execute: "تنفيذ",
-                printPdf: "طباعة / تصدير إلى PDF",
-                processing: "جاري المعالجة... يرجى الانتظار",
-                invalidItemsFormat: "صيغة ملف البنود غير صحيحة. يرجى التأكد من وجود 5 أعمدة.",
-                summaryTitle: "ملخص خطة القطع",
-                summaryTableHeaders: ["القطاع", "نوع الصلب", "كود الخامة", "عدد الزوايا المستخدمة", "نسبة الكفاءة", "نسبة الهدر"],
-                total: "الإجمالي",
-                wasteReportTitle: "بيان بالفضلات (طول ≥ 1500 مم)",
-                noWaste: "لم يتم إنتاج فضلات بطول 1500 مم أو أكثر.",
-                wasteTableHeaders: ["القطاع", "نوع الصلب", "طول الفضلة (مم)", "العدد"],
-                planTitle: "خطة القطع للقطاع:",
-                planTitleSteel: "ونوع الصلب:",
-                pattern: "نموذج",
-                count: "العدد",
-                waste: "الهدر",
-                totalBars: "إجمالي عدد الزوايا الخام المستخدمة: ",
-                totalWaste: "إجمالي الهدر: ",
-                wastePercentage: "نسبة الهدر: ",
-                failedToReadCodes: "فشل في قراءة ملف أكواد الخامة. يرجى التأكد من الصيغة.",
-                failedToReadItems: "فشل في قراءة ملف البنود.",
-                chooseBothFiles: "يرجى اختيار كلا الملفين أولاً.",
-                noValidData: "لم يتم العثور على بيانات صالحة في ملف Excel.",
-                unspecified: "غير محدد",
-                notAvailable: "غير متوفر",
-                item: "بند",
+        // Main application object
+        const CuttingPlanApp = {
+            // Configuration
+            config: {
+                rawMaterialLength: 12000,
+                minWasteLength: 1500,
+                supportedFileTypes: ['.xlsx', '.xls'],
+                maxItemsPerFile: 5000
             },
-            en: {
-                title: "Cutting Plan for Profiles",
-                description: "Upload an Excel file containing the items to be cut, then the raw material codes file.",
-                itemsLabel: "Choose Items File",
-                codesLabel: "Choose Raw Material Codes File",
-                noFileChosen: "No file chosen",
-                execute: "Execute",
-                printPdf: "Print / Export to PDF",
-                processing: "Processing... Please wait",
-                invalidItemsFormat: "Items file format is incorrect. Please ensure there are 5 columns.",
-                summaryTitle: "Cutting Plan Summary",
-                summaryTableHeaders: ["Section", "Steel Type", "Raw Material Code", "Number of Raw Bars Used", "Efficiency Percentage", "Waste Percentage"],
-                total: "Total",
-                wasteReportTitle: "Waste Report (length ≥ 1500 mm)",
-                noWaste: "No waste pieces of 1500 mm or more were produced.",
-                wasteTableHeaders: ["Section", "Steel Type", "Waste Length (mm)", "Count"],
-                planTitle: "Cutting plan for section:",
-                planTitleSteel: "and steel type:",
-                pattern: "Pattern",
-                count: "Count",
-                waste: "Waste",
-                totalBars: "Total number of raw bars used: ",
-                totalWaste: "Total Waste: ",
-                wastePercentage: "Waste Percentage: ",
-                failedToReadCodes: "Failed to read the raw material codes file. Please check the format.",
-                failedToReadItems: "Failed to read the items file.",
-                chooseBothFiles: "Please choose both files first.",
-                noValidData: "No valid data found in the Excel file.",
-                unspecified: "Unspecified",
-                notAvailable: "Not available",
-                item: "Item",
-            }
-        };
-
-        // Function to format numbers with commas
-        function formatNumberWithCommas(number) {
-            return Math.round(number).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            const t = translations[lang];
-
-            document.getElementById('title').textContent = t.title;
-            document.getElementById('app-title').textContent = t.title;
-            document.getElementById('app-description').textContent = t.description;
-            document.getElementById('items-label').textContent = t.itemsLabel;
-            document.getElementById('codes-label').textContent = t.codesLabel;
-            
-            if (!loadedItemsFile) {
-                document.getElementById('items-file-name').textContent = t.noFileChosen;
-            }
-            if (!loadedCodesFile) {
-                document.getElementById('codes-file-name').textContent = t.noFileChosen;
-            }
-            
-            document.getElementById('execute-btn-text').textContent = t.execute;
-            document.getElementById('print-pdf-btn-text').textContent = t.printPdf;
-            document.getElementById('loading').textContent = t.processing;
-            
-            LANG_TOGGLE.textContent = lang === 'ar' ? 'English' : 'العربية';
-            BODY.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            BODY.style.textAlign = lang === 'ar' ? 'right' : 'left';
-            
-            if (Object.keys(finalCuttingPlan).length > 0) {
-                displayReport(finalCuttingPlan);
-            }
-            hideMessages();
-        }
-
-        LANG_TOGGLE.addEventListener('click', () => {
-            const newLang = currentLang === 'ar' ? 'en' : 'ar';
-            setLanguage(newLang);
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setLanguage('en');
-        });
-        
-        function showMessage(msg, isError = false) {
-            MESSAGE_DISPLAY.textContent = msg;
-            MESSAGE_DISPLAY.className = isError ? 'text-center text-red-400 font-medium' : 'text-center text-green-400 font-medium';
-            MESSAGE_DISPLAY.style.display = 'block';
-        }
-
-        function hideMessages() {
-            MESSAGE_DISPLAY.style.display = 'none';
-        }
-        
-        function checkReadiness() {
-            EXECUTE_BTN.disabled = !(loadedItemsFile && loadedCodesFile);
-        }
-
-        function loadCodesFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const codes = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                        const codesMap = {};
-                        codes.forEach(row => {
-                            if (row.length >= 3) {
-                                const section = row[0] ? row[0].toString() : '';
-                                const steelType = row[1] ? row[1].toString() : '';
-                                const code = row[2] ? row[2].toString() : '';
-                                if (section && steelType) {
-                                    codesMap[`${section}###${steelType}`] = code;
-                                }
-                            }
-                        });
-                        rawMaterialCodes = codesMap;
-                        resolve();
-                    } catch (error) {
-                        reject(translations[currentLang].failedToReadCodes);
-                    }
-                };
-                reader.onerror = (error) => reject(translations[currentLang].failedToReadCodes);
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        function groupItemsBySection(items) {
-            const grouped = {};
-            items.forEach(item => {
-                const section = item[0] ? item[0].toString() : translations[currentLang].unspecified;
-                const name = item[1] ? item[1].toString() : translations[currentLang].item;
-                const length = item[2] ? parseFloat(item[2]) : 0;
-                const quantity = item[3] ? parseInt(item[3]) : 0;
-                const steelType = item[4] ? item[4].toString() : translations[currentLang].unspecified;
-
-                if (isNaN(length) || isNaN(quantity) || length <= 0 || quantity <= 0) {
-                    return; 
+            // State management
+            state: {
+                currentLang: 'en',
+                finalCuttingPlan: {},
+                rawMaterialCodes: {},
+                loadedItemsFile: null,
+                loadedCodesFile: null,
+                invalidItems: []
+            },
+            // DOM elements
+            elements: {
+                itemsFileInput: document.getElementById('items-file'),
+                codesFileInput: document.getElementById('codes-file'),
+                itemsFileNameDisplay: document.getElementById('items-file-name'),
+                codesFileNameDisplay: document.getElementById('codes-file-name'),
+                itemsUploadArea: document.getElementById('items-upload-area'),
+                codesUploadArea: document.getElementById('codes-upload-area'),
+                executeBtn: document.getElementById('execute-btn'),
+                printPdfBtn: document.getElementById('print-pdf-btn'),
+                reportContainer: document.getElementById('report-container'),
+                loadingDisplay: document.getElementById('loading'),
+                messageDisplay: document.getElementById('message'),
+                langToggle: document.getElementById('lang-toggle'),
+                body: document.body
+            },
+            // Translations
+            translations: {
+                ar: {
+                    title: "تطبيق خطة القطع الخطي للمقاطع",
+                    description: "قم برفع ملف Excel الذي يحتوي على العناصر المراد قطعها، ثم ملف رموز المواد الخام.",
+                    itemsLabel: "اختر ملف العناصر",
+                    codesLabel: "اختر ملف رموز المواد الخام",
+                    noFileChosen: "لم يتم اختيار ملف",
+                    execute: "تنفيذ",
+                    printPdf: "طباعة / تصدير PDF",
+                    processing: "جاري المعالجة... يرجى الانتظار",
+                    invalidItemsFormat: "صيغة ملف العناصر غير صحيحة. يرجى التأكد من وجود 5 أعمدة.",
+                    summaryTitle: "ملخص خطة القطع",
+                    summaryTableHeaders: ["المقطع", "نوع الفولاذ", "كود المادة الخام", "عدد القضبان المستخدمة", "كفاءة", "نسبة الهدر"],
+                    total: "المجموع",
+                    wasteReportTitle: "تقرير الهدر (طول ≥ 1500 ملم)",
+                    noWaste: "لم يتم إنتاج أي فضلات طولها 1500 ملم أو أكثر.",
+                    wasteTableHeaders: ["المقطع", "نوع الفولاذ", "طول الهدر (ملم)", "العدد"],
+                    planTitle: "خطة القطع للمقطع:",
+                    planTitleSteel: "ونوع الفولاذ:",
+                    pattern: "النمط",
+                    count: "العدد",
+                    waste: "الهدر",
+                    totalBars: "إجمالي عدد القضبان الخام المستخدمة: ",
+                    totalWaste: "إجمالي الهدر: ",
+                    wastePercentage: "نسبة الهدر: ",
+                    failedToReadCodes: "فشل قراءة ملف رموز المواد الخام. يرجى التحقق من الصيغة.",
+                    failedToReadItems: "فشل قراءة ملف العناصر.",
+                    chooseBothFiles: "يرجى اختيار كلا الملفين أولاً.",
+                    noValidData: "لم يتم العثور على بيانات صالحة في ملف Excel.",
+                    unspecified: "غير محدد",
+                    notAvailable: "غير متوفر",
+                    item: "عنصر",
+                    efficiency: "كفاءة",
+                    dragDrop: "اسحب وأفلت الملف هنا",
+                    invalidLength: "يوجد {count} عنصر(أ) بطول يتجاوز طول المادة الخام ({length} ملم). يرجى تصحيح البيانات.",
+                    invalidNumeric: "القيمة {value} غير صالحة في العمود {column}. يجب أن تكون رقمًا موجبًا.",
+                    fileTooLarge: "الملف كبير جدًا. الحد الأقصى للعناصر هو {maxItems}."
+                },
+                en: {
+                    title: "Linear cutting plan for Profiles",
+                    description: "Upload the Excel file containing the items to be cut, then the raw material codes file.",
+                    itemsLabel: "Choose Items File",
+                    codesLabel: "Choose Raw Material Codes File",
+                    noFileChosen: "No file chosen",
+                    execute: "Execute",
+                    printPdf: "Print / Export to PDF",
+                    processing: "Processing... Please wait",
+                    invalidItemsFormat: "Items file format is incorrect. Please ensure there are 5 columns.",
+                    summaryTitle: "Cutting Plan Summary",
+                    summaryTableHeaders: ["Section", "Steel Type", "Raw Material Code", "Number of Raw Bars Used", "Efficiency", "Waste Percentage"],
+                    total: "Total",
+                    wasteReportTitle: "Waste Report (length ≥ 1500 mm)",
+                    noWaste: "No waste pieces of 1500 mm or more were produced.",
+                    wasteTableHeaders: ["Section", "Steel Type", "Waste Length (mm)", "Count"],
+                    planTitle: "Cutting plan for section:",
+                    planTitleSteel: "and steel type:",
+                    pattern: "Pattern",
+                    count: "Count",
+                    waste: "Waste",
+                    totalBars: "Total number of raw bars used: ",
+                    totalWaste: "Total Waste: ",
+                    wastePercentage: "Waste Percentage: ",
+                    failedToReadCodes: "Failed to read the raw material codes file. Please check the format.",
+                    failedToReadItems: "Failed to read the items file.",
+                    chooseBothFiles: "Please choose both files first.",
+                    noValidData: "No valid data found in the Excel file.",
+                    unspecified: "Unspecified",
+                    notAvailable: "Not available",
+                    item: "Item",
+                    efficiency: "Efficiency",
+                    dragDrop: "Drag & drop your file here",
+                    invalidLength: "{count} item(s) exceed the raw material length ({length} mm). Please correct your data.",
+                    invalidNumeric: "Invalid value {value} in column {column}. Must be a positive number.",
+                    fileTooLarge: "File is too large. Maximum items limit is {maxItems}."
                 }
-
-                const groupKey = `${section}###${steelType}`;
-                if (!grouped[groupKey]) {
-                    grouped[groupKey] = [];
-                }
-
-                for (let i = 0; i < quantity; i++) {
-                    grouped[groupKey].push({
-                        name: name,
-                        length: length,
-                        section: section,
-                        steelType: steelType
-                    });
-                }
-            });
-            return grouped;
-        }
-
-        function calculateCuttingPlan(items, rawLength) {
-            items.sort((a, b) => b.length - a.length);
-
-            const bars = [];
-            let barCounter = 1;
-
-            items.forEach(item => {
-                let foundFit = false;
-                for (let i = 0; i < bars.length; i++) {
-                    if (bars[i].remaining >= item.length) {
-                        bars[i].cuts.push(item);
-                        bars[i].remaining -= item.length;
-                        foundFit = true;
-                        break;
-                    }
-                }
-
-                if (!foundFit) {
-                    bars.push({
-                        id: barCounter++,
-                        originalLength: rawLength,
-                        remaining: rawLength - item.length,
-                        cuts: [item]
-                    });
-                }
-            });
-
-            return bars;
-        }
-
-        // Custom sorting function for sections
-        function compareSections(a, b) {
-            // Extract section numbers from a and b
-            const aSection = a.section.match(/L(\d+)x(\d+)/);
-            const bSection = b.section.match(/L(\d+)x(\d+)/);
-            
-            if (!aSection || !bSection) {
-                // If the section doesn't match the pattern, sort alphabetically
-                return a.section.localeCompare(b.section);
-            }
-            
-            const aSize1 = parseInt(aSection[1]);
-            const aSize2 = parseInt(aSection[2]);
-            const bSize1 = parseInt(bSection[1]);
-            const bSize2 = parseInt(bSection[2]);
-            
-            // Compare first size
-            if (aSize1 !== bSize1) {
-                return aSize1 - bSize1;
-            }
-            
-            // Compare second size
-            return aSize2 - bSize2;
-        }
-
-        function displayReport(plan) {
-            const t = translations[currentLang];
-            REPORT_CONTAINER.innerHTML = '';
-            hideMessages();
-
-            if (Object.keys(plan).length === 0) {
-                showMessage(t.noValidData, true);
-                PRINT_PDF_BTN.style.display = 'none';
-                return;
-            }
-            
-            let totalRawBarsAll = 0;
-            let totalWasteAll = 0;
-            let totalLengthAll = 0;
-            const summaryData = [];
-            const allWastes = []; // Collect all wastes here
-
-            // Create summary section first with placeholder values for totals
-            const summaryDiv = document.createElement('div');
-            summaryDiv.className = 'report-section';
-            summaryDiv.innerHTML = `
-                <h2 class="report-header">${t.summaryTitle}</h2>
-                <div class="overflow-x-auto">
-                    <table class="summary-table">
-                        <thead>
-                            <tr>${t.summaryTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                        <tfoot>
-                            <tr class="font-bold">
-                                <td>${t.total}</td>
-                                <td></td>
-                                <td></td>
-                                <td>${totalRawBarsAll}</td>
-                                <td>0.00 %</td>
-                                <td>0.00 %</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
-            REPORT_CONTAINER.appendChild(summaryDiv);
-
-            // Process each section and collect wastes
-            for (const groupKey in plan) {
-                const sectionData = plan[groupKey];
-                const totalRawBars = sectionData.length;
-                let totalWaste = 0;
+            },
+            // Initialize the application
+            init() {
+                this.bindEvents();
+                this.setLanguage('en');
+            },
+            // Bind all event listeners
+            bindEvents() {
+                const { 
+                    itemsFileInput, codesFileInput, itemsUploadArea, 
+                    codesUploadArea, executeBtn, printPdfBtn, langToggle 
+                } = this.elements;
                 
-                sectionData.forEach(bar => {
-                    const remaining = bar.remaining;
-                    totalWaste += remaining;
-                    if (remaining >= MIN_WASTE_LENGTH) {
-                        const { section, steelType } = bar.cuts[0];
-                        allWastes.push({
-                            length: remaining,
+                // Add click handlers for the upload areas to trigger the hidden file inputs
+                itemsUploadArea.addEventListener('click', () => itemsFileInput.click());
+                codesUploadArea.addEventListener('click', () => codesFileInput.click());
+                
+                // File input changes
+                itemsFileInput.addEventListener('change', (e) => this.handleFileSelect(e, 'items'));
+                codesFileInput.addEventListener('change', (e) => this.handleFileSelect(e, 'codes'));
+                
+                // Drag and drop events
+                this.setupDragAndDrop(itemsUploadArea, itemsFileInput, 'items');
+                this.setupDragAndDrop(codesUploadArea, codesFileInput, 'codes');
+                
+                // Button clicks
+                executeBtn.addEventListener('click', () => this.executeCuttingPlan());
+                printPdfBtn.addEventListener('click', () => window.print());
+                
+                // Language toggle
+                langToggle.addEventListener('click', () => {
+                    const newLang = this.state.currentLang === 'ar' ? 'en' : 'ar';
+                    this.setLanguage(newLang);
+                });
+            },
+            // Set up drag and drop for file upload areas
+            setupDragAndDrop(dropArea, fileInput, type) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, () => {
+                        dropArea.classList.add('dragover');
+                    });
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropArea.addEventListener(eventName, () => {
+                        dropArea.classList.remove('dragover');
+                    });
+                });
+                
+                dropArea.addEventListener('drop', (e) => {
+                    const files = e.dataTransfer.files;
+                    if (files.length && this.isValidFileType(files[0].name)) {
+                        fileInput.files = files;
+                        this.handleFileSelect({ target: fileInput }, type);
+                    }
+                });
+            },
+            // Check if file type is valid
+            isValidFileType(fileName) {
+                return this.config.supportedFileTypes.some(type => fileName.toLowerCase().endsWith(type));
+            },
+            // Handle file selection
+            handleFileSelect(event, type) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (!this.isValidFileType(file.name)) {
+                    this.showMessage(`Please select a valid Excel file (${this.config.supportedFileTypes.join(', ')})`, true);
+                    return;
+                }
+                
+                this.state[`loaded${type.charAt(0).toUpperCase() + type.slice(1)}File`] = file;
+                this.elements[`${type}FileNameDisplay`].textContent = file.name;
+                this.checkReadiness();
+            },
+            // Check if both files are ready
+            checkReadiness() {
+                const { executeBtn } = this.elements;
+                const { loadedItemsFile, loadedCodesFile } = this.state;
+                executeBtn.disabled = !(loadedItemsFile && loadedCodesFile);
+                if (!executeBtn.disabled) {
+                    executeBtn.classList.add('pulse');
+                } else {
+                    executeBtn.classList.remove('pulse');
+                }
+            },
+            // Set application language
+            setLanguage(lang) {
+                this.state.currentLang = lang;
+                const t = this.translations[lang];
+                const { langToggle, body } = this.elements;
+                
+                // Update text content
+                document.getElementById('title').textContent = t.title;
+                document.getElementById('app-title').textContent = t.title;
+                document.getElementById('app-description').textContent = t.description;
+                document.getElementById('items-label').textContent = t.itemsLabel;
+                document.getElementById('codes-label').textContent = t.codesLabel;
+                
+                if (!this.state.loadedItemsFile) {
+                    document.getElementById('items-file-name').textContent = t.noFileChosen;
+                }
+                if (!this.state.loadedCodesFile) {
+                    document.getElementById('codes-file-name').textContent = t.noFileChosen;
+                }
+                
+                document.getElementById('execute-btn-text').textContent = t.execute;
+                document.getElementById('print-pdf-btn-text').textContent = t.printPdf;
+                document.getElementById('loading').querySelector('span').textContent = t.processing;
+                
+                // Update drag and drop text
+                document.querySelectorAll('.file-upload-area p').forEach(p => {
+                    p.textContent = t.dragDrop;
+                });
+                
+                // Update UI direction
+                body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                body.style.textAlign = lang === 'ar' ? 'right' : 'left';
+                
+                // Update language toggle
+                langToggle.classList.toggle('ar', lang === 'ar');
+                
+                // Refresh report if available
+                if (Object.keys(this.state.finalCuttingPlan).length > 0) {
+                    this.displayReport(this.state.finalCuttingPlan);
+                }
+                
+                this.hideMessages();
+            },
+            // Show message
+            showMessage(msg, isError = false) {
+                const { messageDisplay } = this.elements;
+                messageDisplay.textContent = msg;
+                messageDisplay.className = isError ? 
+                    'bg-red-900/30 text-red-300 p-4 rounded-lg text-center font-medium' : 
+                    'bg-green-900/30 text-green-300 p-4 rounded-lg text-center font-medium';
+                messageDisplay.style.display = 'block';
+            },
+            // Hide messages
+            hideMessages() {
+                this.elements.messageDisplay.style.display = 'none';
+            },
+            // Execute the cutting plan calculation
+            async executeCuttingPlan() {
+                const { loadedItemsFile, loadedCodesFile, currentLang } = this.state;
+                const { loadingDisplay, reportContainer } = this.elements;
+                const t = this.translations[currentLang];
+                
+                if (!loadedItemsFile || !loadedCodesFile) {
+                    this.showMessage(t.chooseBothFiles, true);
+                    return;
+                }
+                
+                loadingDisplay.style.display = 'block';
+                reportContainer.innerHTML = '';
+                this.hideMessages();
+                this.state.finalCuttingPlan = {};
+                this.state.invalidItems = [];
+                
+                try {
+                    await this.loadCodesFile(loadedCodesFile);
+                    const itemsData = await this.readExcelFile(loadedItemsFile);
+                    
+                    if (itemsData.length > 0 && itemsData[0].length < 5) {
+                        throw new Error(t.invalidItemsFormat);
+                    }
+                    
+                    if (itemsData.length > this.config.maxItemsPerFile + 1) {
+                        throw new Error(t.fileTooLarge.replace('{maxItems}', this.config.maxItemsPerFile));
+                    }
+                    
+                    const { grouped, invalidItems } = this.groupItemsBySection(itemsData);
+                    this.state.invalidItems = invalidItems;
+                    
+                    if (invalidItems.length > 0) {
+                        this.showMessage(t.invalidLength.replace('{count}', invalidItems.length).replace('{length}', this.config.rawMaterialLength), true);
+                        return;
+                    }
+                    
+                    const cuttingPlan = {};
+                    for (const groupKey in grouped) {
+                        cuttingPlan[groupKey] = this.calculateCuttingPlan(grouped[groupKey], this.config.rawMaterialLength);
+                    }
+                    
+                    this.state.finalCuttingPlan = cuttingPlan;
+                    this.displayReport(cuttingPlan);
+                } catch (error) {
+                    this.showMessage(error.message || t.failedToReadItems, true);
+                } finally {
+                    loadingDisplay.style.display = 'none';
+                }
+            },
+            // Load codes file
+            async loadCodesFile(file) {
+                const t = this.translations[this.state.currentLang];
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            const codes = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                            const codesMap = {};
+                            codes.forEach(row => {
+                                if (row.length >= 3) {
+                                    const section = row[0] ? row[0].toString().trim() : '';
+                                    const steelType = row[1] ? row[1].toString().trim() : '';
+                                    const code = row[2] ? row[2].toString().trim() : '';
+                                    if (section && steelType) {
+                                        codesMap[`${section}###${steelType}`] = code;
+                                    }
+                                }
+                            });
+                            this.state.rawMaterialCodes = codesMap;
+                            resolve();
+                        } catch (error) {
+                            reject(t.failedToReadCodes);
+                        }
+                    };
+                    reader.onerror = () => reject(t.failedToReadCodes);
+                    reader.readAsArrayBuffer(file);
+                });
+            },
+            // Read Excel file
+            readExcelFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                            resolve(jsonData);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    reader.onerror = () => reject(new Error('Failed to read file'));
+                    reader.readAsArrayBuffer(file);
+                });
+            },
+            // Group items by section and steel type with validation
+            groupItemsBySection(items) {
+                const t = this.translations[this.state.currentLang];
+                const grouped = {};
+                const invalidItems = [];
+                const rawMaterialLength = this.config.rawMaterialLength;
+                
+                items.forEach(item => {
+                    // Skip empty rows or headers
+                    if (!item || item.length < 5) return;
+                    
+                    // Check if row contains data (not headers)
+                    const section = item[0] ? item[0].toString().trim() : t.unspecified;
+                    const name = item[1] ? item[1].toString().trim() : t.item;
+                    let length = parseFloat(item[2]);
+                    let quantity = parseInt(item[3]);
+                    const steelType = item[4] ? item[4].toString().trim() : t.unspecified;
+                    
+                    // Validate numeric values
+                    if (isNaN(length) || length <= 0) {
+                        invalidItems.push({
+                            section: section,
+                            steelType: steelType,
+                            value: item[2],
+                            column: "Length"
+                        });
+                        return;
+                    }
+                    
+                    if (isNaN(quantity) || quantity <= 0) {
+                        invalidItems.push({
+                            section: section,
+                            steelType: steelType,
+                            value: item[3],
+                            column: "Quantity"
+                        });
+                        return;
+                    }
+                    
+                    // Check if length exceeds raw material length
+                    if (length > rawMaterialLength) {
+                        invalidItems.push({
+                            section: section,
+                            steelType: steelType,
+                            length: length,
+                            quantity: quantity
+                        });
+                        return;
+                    }
+                    
+                    const groupKey = `${section}###${steelType}`;
+                    if (!grouped[groupKey]) {
+                        grouped[groupKey] = [];
+                    }
+                    for (let i = 0; i < quantity; i++) {
+                        grouped[groupKey].push({
+                            name: name,
+                            length: length,
                             section: section,
                             steelType: steelType
                         });
                     }
                 });
-
-                const totalSectionLength = totalRawBars * RAW_MATERIAL_LENGTH;
-                const wastePercentage = (totalSectionLength > 0) ? (totalWaste / totalSectionLength) * 100 : 0;
-                const efficiencyPercentage = 100 - wastePercentage;
                 
-                const [section, steelType] = groupKey.split('###');
-                const rawCode = rawMaterialCodes[groupKey] || t.notAvailable;
-
-                summaryData.push({
-                    section: section,
-                    steelType: steelType,
-                    rawCode: rawCode,
-                    rawBars: totalRawBars,
-                    efficiency: efficiencyPercentage,
-                    waste: wastePercentage
-                });
-
-                totalRawBarsAll += totalRawBars;
-                totalWasteAll += totalWaste;
-                totalLengthAll += totalSectionLength;
-            }
-
-            // Update summary table with actual data
-            const totalWastePercentageAll = (totalLengthAll > 0) ? (totalWasteAll / totalLengthAll) * 100 : 0;
-            const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
-            
-            const summaryTable = summaryDiv.querySelector('.summary-table');
-            if (summaryTable) {
-                const tbody = summaryTable.querySelector('tbody');
-                if (tbody) {
-                    tbody.innerHTML = summaryData.map(item => `
-                        <tr>
-                            <td>${item.section}</td>
-                            <td>${item.steelType}</td>
-                            <td>${item.rawCode}</td>
-                            <td>${item.rawBars}</td>
-                            <td>${item.efficiency.toFixed(2)} %</td>
-                            <td>${item.waste.toFixed(2)} %</td>
-                        </tr>
-                    `).join('');
+                return { grouped, invalidItems };
+            },
+            // Calculate cutting plan for a group of items using best-fit algorithm
+            calculateCuttingPlan(items, rawLength) {
+                // Sort items by length descending (FFD)
+                items.sort((a, b) => b.length - a.length);
+                const bars = [];
+                let barCounter = 1;
+                
+                items.forEach(item => {
+                    let placed = false;
+                    let bestFitIndex = -1;
+                    let bestFitRemaining = Infinity;
                     
-                    const tfoot = summaryTable.querySelector('tfoot');
-                    if (tfoot) {
-                        tfoot.innerHTML = `
-                            <tr class="font-bold">
-                                <td>${t.total}</td>
-                                <td></td>
-                                <td></td>
-                                <td>${totalRawBarsAll}</td>
-                                <td>${totalEfficiencyPercentageAll.toFixed(2)} %</td>
-                                <td>${totalWastePercentageAll.toFixed(2)} %</td>
-                            </tr>
-                        `;
+                    // Find best fit bar (smallest remaining space that can fit the item)
+                    for (let i = 0; i < bars.length; i++) {
+                        if (bars[i].remaining >= item.length) {
+                            if (bars[i].remaining < bestFitRemaining) {
+                                bestFitIndex = i;
+                                bestFitRemaining = bars[i].remaining;
+                            }
+                        }
                     }
-                }
-            }
-
-            // Create single waste report table after summary
-            if (allWastes.length > 0) {
-                // Group and sort wastes by section in ascending order starting with L100x10
-                const groupedWastes = {};
-                allWastes.forEach(waste => {
-                    const key = `${waste.section}-${waste.steelType}-${Math.round(waste.length)}`;
-                    if (!groupedWastes[key]) {
-                        groupedWastes[key] = { ...waste, count: 0 };
+                    
+                    if (bestFitIndex !== -1) {
+                        bars[bestFitIndex].cuts.push(item);
+                        bars[bestFitIndex].remaining -= item.length;
+                        placed = true;
                     }
-                    groupedWastes[key].count++;
+                    
+                    // Place in new bar if not placed
+                    if (!placed) {
+                        bars.push({
+                            id: barCounter++,
+                            originalLength: rawLength,
+                            remaining: rawLength - item.length,
+                            cuts: [item]
+                        });
+                    }
                 });
                 
-                const wastesDiv = document.createElement('div');
-                wastesDiv.className = 'report-section';
-                wastesDiv.innerHTML = `
-                    <h2 class="report-header">${t.wasteReportTitle}</h2>
+                return bars;
+            },
+            // Display the report
+            displayReport(plan) {
+                const t = this.translations[this.state.currentLang];
+                const { reportContainer, printPdfBtn } = this.elements;
+                reportContainer.innerHTML = '';
+                this.hideMessages();
+                
+                // Show invalid items warning if any
+                if (this.state.invalidItems.length > 0) {
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'warning-message';
+                    warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i> ${t.invalidLength.replace('{count}', this.state.invalidItems.length).replace('{length}', this.config.rawMaterialLength)}`;
+                    reportContainer.appendChild(warningDiv);
+                }
+                
+                if (Object.keys(plan).length === 0) {
+                    this.showMessage(t.noValidData, true);
+                    printPdfBtn.style.display = 'none';
+                    return;
+                }
+                
+                let totalRawBarsAll = 0;
+                let totalWasteAll = 0;
+                let totalLengthAll = 0;
+                const summaryData = [];
+                const allWastes = [];
+                
+                // Create summary section
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'report-section fade-in';
+                summaryDiv.innerHTML = `
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-chart-pie mr-2"></i>
+                        ${t.summaryTitle}
+                    </h2>
                     <div class="overflow-x-auto">
-                        <table class="waste-table">
+                        <table class="summary-table">
                             <thead>
-                                <tr>${t.wasteTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
+                                <tr>${t.summaryTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
                             </thead>
-                            <tbody>
-                                ${Object.values(groupedWastes).sort(compareSections).map(waste => `
-                                    <tr>
-                                        <td>${waste.section}</td>
-                                        <td>${waste.steelType}</td>
-                                        <td>${formatNumberWithCommas(waste.length)}</td>
-                                        <td>${waste.count}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr class="font-bold">
+                                    <td>${t.total}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>${totalRawBarsAll}</td>
+                                    <td>0.00 %</td>
+                                    <td>0.00 %</td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 `;
-                REPORT_CONTAINER.appendChild(wastesDiv);
-            } else {
-                const wastesDiv = document.createElement('div');
-                wastesDiv.className = 'report-section';
-                wastesDiv.innerHTML = `
-                    <h2 class="report-header">${t.wasteReportTitle}</h2>
-                    <p class="text-center text-gray-400">${t.noWaste}</p>
-                `;
-                REPORT_CONTAINER.appendChild(wastesDiv);
-            }
-
-            // Now create and append the individual cutting plan sections
-            for (const groupKey in plan) {
-                const sectionData = plan[groupKey];
+                reportContainer.appendChild(summaryDiv);
                 
-                const groupedBars = {};
-                sectionData.forEach(bar => {
-                    const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
-                    const key = `${cutsPattern}|${bar.remaining.toFixed(2)}`;
-                    if (!groupedBars[key]) {
-                        groupedBars[key] = { ...bar, count: 0 };
-                    }
-                    groupedBars[key].count++;
-                });
+                // Process each section
+                for (const groupKey in plan) {
+                    const sectionData = plan[groupKey];
+                    const totalRawBars = sectionData.length;
+                    let totalWaste = 0;
+                    sectionData.forEach(bar => {
+                        totalWaste += bar.remaining;
+                        if (bar.remaining >= this.config.minWasteLength) {
+                            const { section, steelType } = bar.cuts[0];
+                            allWastes.push({
+                                length: bar.remaining,
+                                section: section,
+                                steelType: steelType
+                            });
+                        }
+                    });
+                    const totalSectionLength = totalRawBars * this.config.rawMaterialLength;
+                    const wastePercentage = totalSectionLength > 0 ? (totalWaste / totalSectionLength) * 100 : 0;
+                    const efficiencyPercentage = 100 - wastePercentage;
+                    const [section, steelType] = groupKey.split('###');
+                    const rawCode = this.state.rawMaterialCodes[groupKey] || t.notAvailable;
+                    summaryData.push({
+                        section: section,
+                        steelType: steelType,
+                        rawCode: rawCode,
+                        rawBars: totalRawBars,
+                        efficiency: efficiencyPercentage,
+                        waste: wastePercentage
+                    });
+                    totalRawBarsAll += totalRawBars;
+                    totalWasteAll += totalWaste;
+                    totalLengthAll += totalSectionLength;
+                }
                 
-                const [section, steelType] = groupKey.split('###');
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'cutting-plan-section';
-                sectionDiv.innerHTML = `
-                    <h2 class="cutting-plan-header">${t.planTitle} ${section} ${t.planTitleSteel} ${steelType}</h2>
-                    <div class="cutting-plan-grid">
-                        ${Object.values(groupedBars).map((groupedBar, index) => `
-                            <div class="cutting-plan-card">
-                                <div class="cutting-plan-pattern">
-                                    <div class="cutting-plan-details">
-                                        <span class="font-semibold">${t.pattern} ${index + 1} (${t.count}: ${groupedBar.count})</span>
-                                        <span class="font-semibold">${t.waste}: ${formatNumberWithCommas(groupedBar.remaining)} mm</span>
+                // Update summary table
+                const totalWastePercentageAll = totalLengthAll > 0 ? (totalWasteAll / totalLengthAll) * 100 : 0;
+                const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
+                const summaryTable = summaryDiv.querySelector('.summary-table');
+                if (summaryTable) {
+                    const tbody = summaryTable.querySelector('tbody');
+                    if (tbody) {
+                        tbody.innerHTML = summaryData.map(item => `
+                            <tr>
+                                <td>${item.section}</td>
+                                <td>${item.steelType}</td>
+                                <td>${item.rawCode}</td>
+                                <td>${item.rawBars}</td>
+                                <td>
+                                    <div class="flex items-center justify-between">
+                                        <span>${item.efficiency.toFixed(2)}%</span>
+                                        <div class="w-16 ml-2">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: ${item.efficiency}%"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <ul class="cutting-plan-list">
-                                        ${groupedBar.cuts.reduce((acc, cut) => {
-                                            const existing = acc.find(item => item.name === cut.name && item.length === cut.length);
-                                            if (existing) {
-                                                existing.count++;
-                                            } else {
-                                                acc.push({ name: cut.name, length: cut.length, count: 1 });
-                                            }
-                                            return acc;
-                                        }, []).map(cut => `
-                                            <li class="cutting-plan-item">
-                                                <span>${cut.name} (x${cut.count})</span>
-                                                <span>${formatNumberWithCommas(cut.length)} mm</span>
-                                            </li>
-                                        `).join('')}
-                                    </ul>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                
-                REPORT_CONTAINER.appendChild(sectionDiv);
-            }
-
-            PRINT_PDF_BTN.style.display = 'flex';
-            PRINT_PDF_BTN.disabled = false;
-        }
-
-        // --- Event Listeners and Execution Flow --- 
-        ITEMS_FILE_INPUT.addEventListener('change', (e) => {
-            loadedItemsFile = e.target.files[0];
-            ITEMS_FILE_NAME_DISPLAY.textContent = loadedItemsFile ? loadedItemsFile.name : translations[currentLang].noFileChosen;
-            checkReadiness();
-        });
-
-        CODES_FILE_INPUT.addEventListener('change', (e) => {
-            loadedCodesFile = e.target.files[0];
-            CODES_FILE_NAME_DISPLAY.textContent = loadedCodesFile ? loadedCodesFile.name : translations[currentLang].noFileChosen;
-            checkReadiness();
-        });
-
-        EXECUTE_BTN.addEventListener('click', async () => {
-            if (!loadedItemsFile || !loadedCodesFile) {
-                showMessage(translations[currentLang].chooseBothFiles, true);
-                return;
-            }
-            
-            LOADING_DISPLAY.style.display = 'block';
-            REPORT_CONTAINER.innerHTML = '';
-            hideMessages();
-            finalCuttingPlan = {};
-
-            try {
-                await loadCodesFile(loadedCodesFile);
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const itemsData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                        if (itemsData.length > 0 && itemsData[0].length < 5) {
-                            throw new Error(translations[currentLang].invalidItemsFormat);
+                                </td>
+                                <td>${item.waste.toFixed(2)}%</td>
+                            </tr>
+                        `).join('');
+                        const tfoot = summaryTable.querySelector('tfoot');
+                        if (tfoot) {
+                            tfoot.innerHTML = `
+                                <tr class="font-bold">
+                                    <td>${t.total}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>${totalRawBarsAll}</td>
+                                    <td>
+                                        <div class="flex items-center justify-between">
+                                            <span>${totalEfficiencyPercentageAll.toFixed(2)}%</span>
+                                            <div class="w-16 ml-2">
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" style="width: ${totalEfficiencyPercentageAll}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>${totalWastePercentageAll.toFixed(2)}%</td>
+                                </tr>
+                            `;
                         }
-
-                        const groupedItems = groupItemsBySection(itemsData);
-
-                        for (const groupKey in groupedItems) {
-                            const items = groupedItems[groupKey];
-                            finalCuttingPlan[groupKey] = calculateCuttingPlan(items, RAW_MATERIAL_LENGTH);
-                        }
-                        
-                        displayReport(finalCuttingPlan);
-
-                    } catch (error) {
-                        showMessage(error.message || translations[currentLang].failedToReadItems, true);
-                    } finally {
-                        LOADING_DISPLAY.style.display = 'none';
                     }
-                };
-                reader.onerror = () => {
-                    showMessage(translations[currentLang].failedToReadItems, true);
-                    LOADING_DISPLAY.style.display = 'none';
-                };
-                reader.readAsArrayBuffer(loadedItemsFile);
-
-            } catch (error) {
-                showMessage(error, true);
-                LOADING_DISPLAY.style.display = 'none';
+                }
+                
+                // Create waste report
+                const wastesDiv = document.createElement('div');
+                wastesDiv.className = 'report-section fade-in';
+                if (allWastes.length > 0) {
+                    // Group wastes
+                    const groupedWastes = {};
+                    allWastes.forEach(waste => {
+                        const key = `${waste.section}-${waste.steelType}-${Math.round(waste.length)}`;
+                        if (!groupedWastes[key]) {
+                            groupedWastes[key] = { ...waste, count: 0 };
+                        }
+                        groupedWastes[key].count++;
+                    });
+                    wastesDiv.innerHTML = `
+                        <h2 class="text-xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-trash-alt mr-2"></i>
+                            ${t.wasteReportTitle}
+                        </h2>
+                        <div class="overflow-x-auto">
+                            <table class="waste-table">
+                                <thead>
+                                    <tr>${t.wasteTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
+                                </thead>
+                                <tbody>
+                                    ${Object.values(groupedWastes).map(waste => `
+                                        <tr>
+                                            <td>${waste.section}</td>
+                                            <td>${waste.steelType}</td>
+                                            <td>${this.formatNumberWithCommas(waste.length)}</td>
+                                            <td>${waste.count}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    wastesDiv.innerHTML = `
+                        <h2 class="text-xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-trash-alt mr-2"></i>
+                            ${t.wasteReportTitle}
+                        </h2>
+                        <p class="text-center py-4 text-gray-400">
+                            <i class="fas fa-check-circle text-green-400 text-2xl mb-2"></i><br>
+                            ${t.noWaste}
+                        </p>
+                    `;
+                }
+                reportContainer.appendChild(wastesDiv);
+                
+                // Create cutting plan sections
+                for (const groupKey in plan) {
+                    const sectionData = plan[groupKey];
+                    const groupedBars = {};
+                    sectionData.forEach(bar => {
+                        const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
+                        const key = `${cutsPattern}|${bar.remaining.toFixed(2)}`;
+                        if (!groupedBars[key]) {
+                            groupedBars[key] = { ...bar, count: 0 };
+                        }
+                        groupedBars[key].count++;
+                    });
+                    const [section, steelType] = groupKey.split('###');
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'cutting-plan-section fade-in';
+                    sectionDiv.innerHTML = `
+                        <h2 class="text-xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-cut mr-2"></i>
+                            ${t.planTitle} ${section} ${t.planTitleSteel} ${steelType}
+                        </h2>
+                        <div class="cutting-plan-grid">
+                            ${Object.values(groupedBars).map((groupedBar, index) => `
+                                <div class="cutting-plan-card">
+                                    <div class="cutting-plan-pattern">
+                                        <div class="cutting-plan-details flex justify-between items-center mb-3">
+                                            <span class="font-semibold">
+                                                <i class="fas fa-project-diagram mr-1"></i>
+                                                ${t.pattern} ${index + 1}
+                                            </span>
+                                            <span class="bg-blue-900/30 px-2 py-1 rounded-full text-sm">
+                                                ${t.count}: ${groupedBar.count}
+                                            </span>
+                                        </div>
+                                        <ul class="cutting-plan-list">
+                                            ${groupedBar.cuts.reduce((acc, cut) => {
+                                                const existing = acc.find(item => item.name === cut.name && item.length === cut.length);
+                                                if (existing) {
+                                                    existing.count++;
+                                                } else {
+                                                    acc.push({ name: cut.name, length: cut.length, count: 1 });
+                                                }
+                                                return acc;
+                                            }, []).map(cut => `
+                                                <li class="cutting-plan-item flex justify-between py-2 border-b border-gray-600 last:border-b-0">
+                                                    <span>${cut.name} <span class="text-gray-400">(x${cut.count})</span></span>
+                                                    <span class="font-mono">${this.formatNumberWithCommas(cut.length)} mm</span>
+                                                </li>
+                                            `).join('')}
+                                        </ul>
+                                        <div class="stats-container">
+                                            <div class="stats-item">
+                                                <span class="text-gray-400">${t.waste}:</span>
+                                                <span class="font-bold">${this.formatNumberWithCommas(groupedBar.remaining)} mm</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    reportContainer.appendChild(sectionDiv);
+                }
+                
+                // Show print button
+                printPdfBtn.style.display = 'flex';
+                printPdfBtn.disabled = false;
+                printPdfBtn.classList.add('fade-in');
+            },
+            // Format number with commas
+            formatNumberWithCommas(number) {
+                return Math.round(number).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             }
-        });
+        };
         
-        PRINT_PDF_BTN.addEventListener('click', () => {
-            window.print();
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            CuttingPlanApp.init();
         });
     </script>
 </body>
 </html>
-```
