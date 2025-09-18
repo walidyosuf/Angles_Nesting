@@ -79,7 +79,6 @@
             justify-content: center;
             align-items: center;
             background-color: rgba(52, 73, 94, 0.5);
-            cursor: pointer;
         }
         .file-upload-area:hover, .file-upload-area.dragover {
             background-color: rgba(61, 80, 102, 0.8);
@@ -243,6 +242,54 @@
                 color: black !important;
             }
         }
+        /* Print options modal */
+        #print-options-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #print-options-modal.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .print-options-container {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        #print-options-modal.visible .print-options-container {
+            transform: translateY(0);
+        }
+        .print-options-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .print-options-message {
+            margin-bottom: 1.5rem;
+            color: #d1d5db;
+        }
+        .print-options-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
     </style>
 </head>
 <body class="p-2 sm:p-4 md:p-6">
@@ -299,6 +346,19 @@
                 <div id="report-container" class="space-y-6"></div>
             </div>
         </div>
+        
+        <!-- Print Options Modal -->
+        <div id="print-options-modal">
+            <div class="print-options-container">
+                <h2 class="print-options-title" id="print-options-title">Print Options</h2>
+                <p class="print-options-message" id="print-options-message">Choose what to print:</p>
+                <div class="print-options-buttons">
+                    <button id="print-full-report" class="btn btn-primary w-full">Print Full Report</button>
+                    <button id="print-summary-only" class="btn btn-secondary w-full">Print Summary Only</button>
+                    <button id="cancel-print" class="btn btn-secondary w-full">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script>
@@ -334,7 +394,13 @@
                 loadingDisplay: document.getElementById('loading'),
                 messageDisplay: document.getElementById('message'),
                 langToggle: document.getElementById('lang-toggle'),
-                body: document.body
+                body: document.body,
+                printOptionsModal: document.getElementById('print-options-modal'),
+                printOptionsTitle: document.getElementById('print-options-title'),
+                printOptionsMessage: document.getElementById('print-options-message'),
+                printFullReportBtn: document.getElementById('print-full-report'),
+                printSummaryOnlyBtn: document.getElementById('print-summary-only'),
+                cancelPrintBtn: document.getElementById('cancel-print')
             },
             // Translations
             translations: {
@@ -373,7 +439,12 @@
                     dragDrop: "اسحب وأفلت الملف هنا",
                     invalidLength: "يوجد {count} عنصر(أ) بطول يتجاوز طول المادة الخام ({length} ملم). يرجى تصحيح البيانات.",
                     invalidNumeric: "القيمة {value} غير صالحة في العمود {column}. يجب أن تكون رقمًا موجبًا.",
-                    fileTooLarge: "الملف كبير جدًا. الحد الأقصى للعناصر هو {maxItems}."
+                    fileTooLarge: "الملف كبير جدًا. الحد الأقصى للعناصر هو {maxItems}.",
+                    printOptionsTitle: "خيارات الطباعة",
+                    printOptionsMessage: "اختر ما تريد طباعته:",
+                    printFullReport: "طباعة التقرير الكامل",
+                    printSummaryOnly: "طباعة الملخص فقط",
+                    cancelPrint: "إلغاء"
                 },
                 en: {
                     title: "Linear cutting plan for Profiles",
@@ -410,7 +481,12 @@
                     dragDrop: "Drag & drop your file here",
                     invalidLength: "{count} item(s) exceed the raw material length ({length} mm). Please correct your data.",
                     invalidNumeric: "Invalid value {value} in column {column}. Must be a positive number.",
-                    fileTooLarge: "File is too large. Maximum items limit is {maxItems}."
+                    fileTooLarge: "File is too large. Maximum items limit is {maxItems}.",
+                    printOptionsTitle: "Print Options",
+                    printOptionsMessage: "Choose what to print:",
+                    printFullReport: "Print Full Report",
+                    printSummaryOnly: "Print Summary Only",
+                    cancelPrint: "Cancel"
                 }
             },
             // Initialize the application
@@ -422,7 +498,9 @@
             bindEvents() {
                 const { 
                     itemsFileInput, codesFileInput, itemsUploadArea, 
-                    codesUploadArea, executeBtn, printPdfBtn, langToggle 
+                    codesUploadArea, executeBtn, printPdfBtn, langToggle,
+                    printFullReportBtn, printSummaryOnlyBtn, cancelPrintBtn,
+                    printOptionsModal
                 } = this.elements;
                 
                 // Add click handlers for the upload areas to trigger the hidden file inputs
@@ -439,7 +517,47 @@
                 
                 // Button clicks
                 executeBtn.addEventListener('click', () => this.executeCuttingPlan());
-                printPdfBtn.addEventListener('click', () => window.print());
+                
+                // Print button now shows the options modal
+                printPdfBtn.addEventListener('click', () => {
+                    const t = this.translations[this.state.currentLang];
+                    printOptionsModal.classList.add('visible');
+                    printOptionsModal.querySelector('.print-options-title').textContent = t.printOptionsTitle;
+                    printOptionsModal.querySelector('.print-options-message').textContent = t.printOptionsMessage;
+                    printFullReportBtn.textContent = t.printFullReport;
+                    printSummaryOnlyBtn.textContent = t.printSummaryOnly;
+                    cancelPrintBtn.textContent = t.cancelPrint;
+                });
+                
+                // Print options handlers
+                printFullReportBtn.addEventListener('click', () => {
+                    printOptionsModal.classList.remove('visible');
+                    window.print();
+                });
+                
+                printSummaryOnlyBtn.addEventListener('click', () => {
+                    printOptionsModal.classList.remove('visible');
+                    
+                    // Hide detailed cutting plan sections before printing
+                    const cuttingPlanSections = document.querySelectorAll('.cutting-plan-section');
+                    cuttingPlanSections.forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Trigger print
+                    window.print();
+                    
+                    // Show the sections again after printing
+                    setTimeout(() => {
+                        cuttingPlanSections.forEach(section => {
+                            section.style.display = '';
+                        });
+                    }, 100);
+                });
+                
+                cancelPrintBtn.addEventListener('click', () => {
+                    printOptionsModal.classList.remove('visible');
+                });
                 
                 // Language toggle
                 langToggle.addEventListener('click', () => {
