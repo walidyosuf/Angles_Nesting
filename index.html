@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -251,10 +252,15 @@
             body {
                 background-color: #fff;
                 color: #000;
+                margin: 0;
+                padding: 0;
+                page-break-before: avoid;
             }
             .card {
                 box-shadow: none;
                 background-color: #fff;
+                margin: 0;
+                padding: 0;
             }
             .no-print {
                 display: none !important;
@@ -269,6 +275,31 @@
             }
             .cutting-plan-section {
                 page-break-inside: avoid;
+                margin: 0;
+                padding: 0;
+            }
+            #app-title {
+                page-break-after: avoid;
+                margin-bottom: 0.5rem;
+            }
+            #app-description {
+                page-break-after: avoid;
+                margin-bottom: 1rem;
+            }
+            #app {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .card {
+                margin-top: 0;
+                padding-top: 0;
+            }
+            .report-section {
+                page-break-before: avoid;
             }
         }
     </style>
@@ -396,7 +427,7 @@
                 item: "بند",
             },
             en: {
-                title: "Cutting Plan Application",
+                title: "Cutting Plan for Profiles",
                 description: "Upload an Excel file containing the items to be cut, then the raw material codes file.",
                 itemsLabel: "Choose Items File",
                 codesLabel: "Choose Raw Material Codes File",
@@ -580,6 +611,31 @@
             return bars;
         }
 
+        // Custom sorting function for sections
+        function compareSections(a, b) {
+            // Extract section numbers from a and b
+            const aSection = a.section.match(/L(\d+)x(\d+)/);
+            const bSection = b.section.match(/L(\d+)x(\d+)/);
+            
+            if (!aSection || !bSection) {
+                // If the section doesn't match the pattern, sort alphabetically
+                return a.section.localeCompare(b.section);
+            }
+            
+            const aSize1 = parseInt(aSection[1]);
+            const aSize2 = parseInt(aSection[2]);
+            const bSize1 = parseInt(bSection[1]);
+            const bSize2 = parseInt(bSection[2]);
+            
+            // Compare first size
+            if (aSize1 !== bSize1) {
+                return aSize1 - bSize1;
+            }
+            
+            // Compare second size
+            return aSize2 - bSize2;
+        }
+
         function displayReport(plan) {
             const t = translations[currentLang];
             REPORT_CONTAINER.innerHTML = '';
@@ -595,8 +651,36 @@
             let totalWasteAll = 0;
             let totalLengthAll = 0;
             const summaryData = [];
-            const wastesList = [];
+            const allWastes = []; // Collect all wastes here
 
+            // Create summary section first with placeholder values for totals
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'report-section';
+            summaryDiv.innerHTML = `
+                <h2 class="report-header">${t.summaryTitle}</h2>
+                <div class="overflow-x-auto">
+                    <table class="summary-table">
+                        <thead>
+                            <tr>${t.summaryTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-bold">
+                                <td>${t.total}</td>
+                                <td></td>
+                                <td></td>
+                                <td>${totalRawBarsAll}</td>
+                                <td>0.00 %</td>
+                                <td>0.00 %</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+            REPORT_CONTAINER.appendChild(summaryDiv);
+
+            // Process each section and collect wastes
             for (const groupKey in plan) {
                 const sectionData = plan[groupKey];
                 const totalRawBars = sectionData.length;
@@ -607,7 +691,7 @@
                     totalWaste += remaining;
                     if (remaining >= MIN_WASTE_LENGTH) {
                         const { section, steelType } = bar.cuts[0];
-                        wastesList.push({
+                        allWastes.push({
                             length: remaining,
                             section: section,
                             steelType: steelType
@@ -636,31 +720,28 @@
                 totalLengthAll += totalSectionLength;
             }
 
+            // Update summary table with actual data
             const totalWastePercentageAll = (totalLengthAll > 0) ? (totalWasteAll / totalLengthAll) * 100 : 0;
             const totalEfficiencyPercentageAll = 100 - totalWastePercentageAll;
-
-            const summaryDiv = document.createElement('div');
-            summaryDiv.className = 'report-section';
-            summaryDiv.innerHTML = `
-                <h2 class="report-header">${t.summaryTitle}</h2>
-                <div class="overflow-x-auto">
-                    <table class="summary-table">
-                        <thead>
-                            <tr>${t.summaryTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
-                        </thead>
-                        <tbody>
-                            ${summaryData.map(item => `
-                                <tr>
-                                    <td>${item.section}</td>
-                                    <td>${item.steelType}</td>
-                                    <td>${item.rawCode}</td>
-                                    <td>${item.rawBars}</td>
-                                    <td>${item.efficiency.toFixed(2)} %</td>
-                                    <td>${item.waste.toFixed(2)} %</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                        <tfoot>
+            
+            const summaryTable = summaryDiv.querySelector('.summary-table');
+            if (summaryTable) {
+                const tbody = summaryTable.querySelector('tbody');
+                if (tbody) {
+                    tbody.innerHTML = summaryData.map(item => `
+                        <tr>
+                            <td>${item.section}</td>
+                            <td>${item.steelType}</td>
+                            <td>${item.rawCode}</td>
+                            <td>${item.rawBars}</td>
+                            <td>${item.efficiency.toFixed(2)} %</td>
+                            <td>${item.waste.toFixed(2)} %</td>
+                        </tr>
+                    `).join('');
+                    
+                    const tfoot = summaryTable.querySelector('tfoot');
+                    if (tfoot) {
+                        tfoot.innerHTML = `
                             <tr class="font-bold">
                                 <td>${t.total}</td>
                                 <td></td>
@@ -669,39 +750,34 @@
                                 <td>${totalEfficiencyPercentageAll.toFixed(2)} %</td>
                                 <td>${totalWastePercentageAll.toFixed(2)} %</td>
                             </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
-            REPORT_CONTAINER.appendChild(summaryDiv);
-            
-            const wastesDiv = document.createElement('div');
-            wastesDiv.className = 'report-section';
-            const wastesHeader = document.createElement('h2');
-            wastesHeader.className = 'report-header';
-            wastesHeader.textContent = t.wasteReportTitle;
-            wastesDiv.appendChild(wastesHeader);
+                        `;
+                    }
+                }
+            }
 
-            if (wastesList.length === 0) {
-                wastesDiv.innerHTML += `<p class="text-center text-gray-400">${t.noWaste}</p>`;
-            } else {
+            // Create single waste report table after summary
+            if (allWastes.length > 0) {
+                // Group and sort wastes by section in ascending order starting with L100x10
                 const groupedWastes = {};
-                wastesList.forEach(waste => {
+                allWastes.forEach(waste => {
                     const key = `${waste.section}-${waste.steelType}-${Math.round(waste.length)}`;
                     if (!groupedWastes[key]) {
                         groupedWastes[key] = { ...waste, count: 0 };
                     }
                     groupedWastes[key].count++;
                 });
-
-                wastesDiv.innerHTML += `
+                
+                const wastesDiv = document.createElement('div');
+                wastesDiv.className = 'report-section';
+                wastesDiv.innerHTML = `
+                    <h2 class="report-header">${t.wasteReportTitle}</h2>
                     <div class="overflow-x-auto">
                         <table class="waste-table">
                             <thead>
                                 <tr>${t.wasteTableHeaders.map(h => `<th>${h}</th>`).join('')}</tr>
                             </thead>
                             <tbody>
-                                ${Object.values(groupedWastes).sort((a, b) => b.length - a.length).map(waste => `
+                                ${Object.values(groupedWastes).sort(compareSections).map(waste => `
                                     <tr>
                                         <td>${waste.section}</td>
                                         <td>${waste.steelType}</td>
@@ -713,12 +789,23 @@
                         </table>
                     </div>
                 `;
+                REPORT_CONTAINER.appendChild(wastesDiv);
+            } else {
+                const wastesDiv = document.createElement('div');
+                wastesDiv.className = 'report-section';
+                wastesDiv.innerHTML = `
+                    <h2 class="report-header">${t.wasteReportTitle}</h2>
+                    <p class="text-center text-gray-400">${t.noWaste}</p>
+                `;
+                REPORT_CONTAINER.appendChild(wastesDiv);
             }
-            REPORT_CONTAINER.appendChild(wastesDiv);
 
+            // Now create and append the individual cutting plan sections
             for (const groupKey in plan) {
+                const sectionData = plan[groupKey];
+                
                 const groupedBars = {};
-                plan[groupKey].forEach(bar => {
+                sectionData.forEach(bar => {
                     const cutsPattern = JSON.stringify(bar.cuts.map(c => `${c.name}-${c.length}`).sort());
                     const key = `${cutsPattern}|${bar.remaining.toFixed(2)}`;
                     if (!groupedBars[key]) {
@@ -761,6 +848,7 @@
                         `).join('')}
                     </div>
                 `;
+                
                 REPORT_CONTAINER.appendChild(sectionDiv);
             }
 
@@ -841,4 +929,4 @@
     </script>
 </body>
 </html>
-
+```
